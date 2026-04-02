@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-surface text-zinc-100 antialiased font-sans;
+    background-color: #0f1117;
+  }
+
+  * {
+    @apply border-surface-border;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-600;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600
+           text-white text-sm font-medium rounded-lg transition-colors duration-150
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-surface-tertiary hover:bg-surface-hover
+           text-zinc-200 text-sm font-medium rounded-lg border border-surface-border
+           transition-colors duration-150 focus:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-zinc-400 hover:text-zinc-100
+           hover:bg-surface-hover text-sm font-medium rounded-md
+           transition-colors duration-150 focus:outline-none;
+  }
+
+  .card {
+    @apply bg-surface-secondary border border-surface-border rounded-xl p-5;
+  }
+
+  .input-base {
+    @apply bg-surface-tertiary border border-surface-border rounded-lg px-3 py-2
+           text-zinc-100 text-sm placeholder:text-zinc-500
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+           transition-colors duration-150 w-full;
+  }
+
+  .label-base {
+    @apply text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5 block;
+  }
+
+  .badge-confirmed {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-status-confirmed/15 text-status-confirmed
+           text-xs font-medium rounded-full border border-status-confirmed/25;
+  }
+
+  .badge-query {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-status-query/15 text-status-query
+           text-xs font-medium rounded-full border border-status-query/25;
+  }
+
+  .badge-budget {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-status-budget/15 text-status-budget
+           text-xs font-medium rounded-full border border-status-budget/25;
+  }
+
+  .badge-reserved {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-status-reserved/15 text-status-reserved
+           text-xs font-medium rounded-full border border-status-reserved/25;
+  }
+}
