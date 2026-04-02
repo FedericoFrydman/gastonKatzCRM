@@ -18,6 +18,9 @@ dist-ssr/
 # Vercel
 .vercel/
 
+# Supabase CLI temp
+supabase/.temp/
+
 # Editor & OS
 .DS_Store
 *.suo
