@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   format,
   startOfMonth,
@@ -26,6 +27,7 @@ const MIN_DATE = subMonths(today, 12)
 const MAX_DATE = addMonths(today, 12)
 
 export function CalendarPage() {
+  const navigate = useNavigate()
   const [currentMonth, setCurrentMonth] = useState(today)
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [direction, setDirection] = useState(0) // animation direction
@@ -218,13 +220,45 @@ export function CalendarPage() {
                     <p className="text-sm">Sin eventos este día</p>
                   </div>
                 ) : (
-                  selectedEvents.map((evt) => <EventCard key={evt.id} event={evt} />)
+                  selectedEvents.map((evt) => (
+                    <EventCard
+                      key={evt.id}
+                      event={evt}
+                      onOpenEvent={(eventId) => {
+                        void navigate(`/events/${eventId}`)
+                      }}
+                    />
+                  ))
                 )}
               </div>
             </motion.aside>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Mobile selected day list */}
+      {selectedDay && (
+        <div className="md:hidden border-t border-surface-border bg-surface-secondary p-3 max-h-56 overflow-y-auto">
+          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+            {format(selectedDay, "EEEE d 'de' MMMM", { locale: es })}
+          </p>
+          {!selectedEvents.length ? (
+            <p className="text-sm text-zinc-600">Sin eventos este día.</p>
+          ) : (
+            <div className="space-y-2">
+              {selectedEvents.map((evt) => (
+                <EventCard
+                  key={evt.id}
+                  event={evt}
+                  onOpenEvent={(eventId) => {
+                    void navigate(`/events/${eventId}`)
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -305,9 +339,21 @@ function DayCell({
 
 // ─── Event Card in side panel ─────────────────────────────────────────────────
 
-function EventCard({ event }: { event: Event }) {
+function EventCard({
+  event,
+  onOpenEvent,
+}: {
+  event: Event
+  onOpenEvent: (eventId: string) => void
+}) {
   return (
-    <div className="p-3 bg-surface rounded-lg border border-surface-border space-y-1.5">
+    <button
+      type="button"
+      onClick={() => {
+        onOpenEvent(event.id)
+      }}
+      className="w-full text-left p-3 bg-surface rounded-lg border border-surface-border space-y-1.5 hover:border-brand-500/50 hover:bg-surface-hover transition-colors"
+    >
       <p className="font-medium text-zinc-100 text-sm leading-tight">{event.name}</p>
       <div className="flex items-center gap-1.5">
         <EventStatusBadge status={event.status} />
@@ -316,6 +362,6 @@ function EventCard({ event }: { event: Event }) {
         <p className="text-zinc-500 text-xs truncate">{event.place.name}</p>
       )}
       <p className="text-zinc-600 text-xs">{formatTime(event.startTime)}</p>
-    </div>
+    </button>
   )
 }
