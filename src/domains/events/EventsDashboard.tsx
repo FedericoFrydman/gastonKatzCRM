@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Plus, Search, SlidersHorizontal, CalendarDays, MapPin } from 'lucide-react'
 import { useEvents } from './events.hooks'
-import { EventStatusBadge } from '@/shared/StatusBadge'
+import { EventStatusMenu } from './EventStatusMenu'
 import type { EventFilters, EventSortBy } from '@/lib/types'
 import type { EventStatus } from '@/lib/database.types'
 import { EVENT_STATUS_LABELS } from '@/lib/types'
@@ -204,7 +204,7 @@ export function EventsDashboard() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <EventStatusBadge status={event.status} />
+                    <EventStatusMenu eventId={event.id} currentStatus={event.status} />
                   </td>
                 </motion.tr>
               ))}

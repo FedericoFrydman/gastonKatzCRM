@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import { useEventsByMonth } from '@/domains/events'
 import { EventStatusBadge } from '@/shared/StatusBadge'
+import { EventStatusMenu } from '@/domains/events/EventStatusMenu'
 import type { Event } from '@/lib/types'
 import { formatTime } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -347,21 +348,26 @@ function EventCard({
   onOpenEvent: (eventId: string) => void
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => {
-        onOpenEvent(event.id)
-      }}
-      className="w-full text-left p-3 bg-surface rounded-lg border border-surface-border space-y-1.5 hover:border-brand-500/50 hover:bg-surface-hover transition-colors"
-    >
-      <p className="font-medium text-zinc-100 text-sm leading-tight">{event.name}</p>
-      <div className="flex items-center gap-1.5">
-        <EventStatusBadge status={event.status} />
+    <div className="group relative w-full text-left p-3 bg-surface rounded-lg border border-surface-border space-y-1.5 hover:border-brand-500/50 hover:bg-surface-hover transition-colors">
+      {/* Quick status dot — top-right corner, appears on hover */}
+      <div className="absolute top-2 right-2">
+        <EventStatusMenu eventId={event.id} currentStatus={event.status} variant="compact" />
       </div>
-      {event.place && (
-        <p className="text-zinc-500 text-xs truncate">{event.place.name}</p>
-      )}
-      <p className="text-zinc-600 text-xs">{formatTime(event.startTime)}</p>
-    </button>
+
+      <button
+        type="button"
+        onClick={() => { onOpenEvent(event.id) }}
+        className="w-full text-left"
+      >
+        <p className="font-medium text-zinc-100 text-sm leading-tight pr-5">{event.name}</p>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <EventStatusBadge status={event.status} />
+        </div>
+        {event.place && (
+          <p className="text-zinc-500 text-xs truncate mt-1">{event.place.name}</p>
+        )}
+        <p className="text-zinc-600 text-xs mt-0.5">{formatTime(event.startTime)}</p>
+      </button>
+    </div>
   )
 }
