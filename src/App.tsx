@@ -27,6 +27,11 @@ const PlacesPage = lazy(async () => {
   return { default: mod.PlacesPage }
 })
 
+const AnalyticsPage = lazy(async () => {
+  const mod = await import('@/domains/analytics')
+  return { default: mod.AnalyticsPage }
+})
+
 function LayoutWrapper() {
   return (
     <AppLayout>
@@ -99,6 +104,14 @@ export function App() {
                   element={
                     <Suspense fallback={<RouteLoader />}>
                       <PlacesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <Suspense fallback={<RouteLoader />}>
+                      <AnalyticsPage />
                     </Suspense>
                   }
                 />
