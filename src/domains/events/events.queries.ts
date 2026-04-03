@@ -47,10 +47,26 @@ function mapEvent(row: EventRow & { places?: Database['public']['Tables']['place
 }
 
 export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
+  const pageSize = filters?.pageSize ?? 20
+  const page = filters?.page ?? 1
+  const offset = (page - 1) * pageSize
+
+  // Determine sort order
+  let orderKey: 'date' | 'status' | 'created_at' = 'date'
+  let ascending = true
+
+  if (filters?.sortBy === 'status') {
+    orderKey = 'status'
+    ascending = true
+  } else if (filters?.sortBy === 'created') {
+    orderKey = 'created_at'
+    ascending = false
+  }
+
   let query = supabase
     .from('events')
     .select('*, places(*)')
-    .order('date', { ascending: true })
+    .order(orderKey, { ascending })
 
   if (filters?.search) {
     query = query.ilike('name', `%${filters.search}%`)
@@ -67,6 +83,9 @@ export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
   if (filters?.dateTo) {
     query = query.lte('date', filters.dateTo)
   }
+
+  // Apply pagination
+  query = query.range(offset, offset + pageSize - 1)
 
   const { data, error } = await query
   if (error) throw error

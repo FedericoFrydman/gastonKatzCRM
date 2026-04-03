@@ -107,10 +107,15 @@ export type FinancialsFormData = {
 
 // ─── Filter types ─────────────────────────────────────────────────────────────
 
+export type EventSortBy = 'date' | 'status' | 'created'
+
 export type EventFilters = {
   search?: string
   status?: EventStatus | ''
   placeId?: string
   dateFrom?: string
   dateTo?: string
+  sortBy?: EventSortBy
+  page?: number
+  pageSize?: number
 }

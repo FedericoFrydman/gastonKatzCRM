@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Plus, Search, SlidersHorizontal, CalendarDays, MapPin } from 'lucide-react'
 import { useEvents } from './events.hooks'
 import { EventStatusBadge } from '@/shared/StatusBadge'
-import type { EventFilters } from '@/lib/types'
+import type { EventFilters, EventSortBy } from '@/lib/types'
 import type { EventStatus } from '@/lib/database.types'
 import { EVENT_STATUS_LABELS } from '@/lib/types'
 import { formatDate, formatTime } from '@/lib/utils'
@@ -12,12 +12,15 @@ import { EventFormModal } from './EventFormModal'
 import { usePlaces } from '@/domains/places'
 
 export function EventsDashboard() {
-  const [filters, setFilters] = useState<EventFilters>({})
+  const [filters, setFilters] = useState<EventFilters>({ page: 1, pageSize: 20, sortBy: 'date' })
   const [showFilters, setShowFilters] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
 
   const { data: events, isLoading } = useEvents(filters)
   const { data: places } = usePlaces()
+
+  const pageSize = filters.pageSize ?? 20
+  const page = filters.page ?? 1
 
   return (
     <div className="p-6">
@@ -26,7 +29,7 @@ export function EventsDashboard() {
         <div>
           <h1 className="text-xl font-bold text-zinc-100">Eventos</h1>
           <p className="text-zinc-500 text-sm mt-0.5">
-            {events?.length ?? 0} eventos encontrados
+            Página {page} {(events?.length ?? 0) > 0 ? '(mostrando hasta ' + String(pageSize) + ' por página)' : '(vacío)'}
           </p>
         </div>
         <button className="btn-primary" onClick={() => { setCreateOpen(true) }}>
@@ -43,9 +46,22 @@ export function EventsDashboard() {
             className="input-base pl-9"
             placeholder="Buscar por nombre..."
             value={filters.search ?? ''}
-            onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value })) }}
+            onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value, page: 1 })) }}
           />
         </div>
+        
+        <select
+          className="input-base"
+          value={filters.sortBy ?? 'date'}
+          onChange={(e) => {
+            setFilters((f) => ({ ...f, sortBy: e.target.value as EventSortBy, page: 1 }))
+          }}
+        >
+          <option value="date">Ordenar: Fecha</option>
+          <option value="status">Ordenar: Estado</option>
+          <option value="created">Ordenar: Creado</option>
+        </select>
+
         <button
           className={showFilters ? 'btn-secondary' : 'btn-ghost border border-surface-border'}
           onClick={() => { setShowFilters(!showFilters) }}
@@ -72,6 +88,7 @@ export function EventsDashboard() {
                 setFilters((f) => ({
                   ...f,
                   status: e.target.value as EventStatus | '',
+                  page: 1,
                 }))
               }}
             >
@@ -91,7 +108,7 @@ export function EventsDashboard() {
             <select
               className="input-base"
               value={filters.placeId ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, placeId: e.target.value })) }}
+              onChange={(e) => { setFilters((f) => ({ ...f, placeId: e.target.value, page: 1 })) }}
             >
               <option value="">Todos</option>
               {places?.map((p) => (
@@ -108,7 +125,7 @@ export function EventsDashboard() {
               type="date"
               className="input-base"
               value={filters.dateFrom ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, dateFrom: e.target.value })) }}
+              onChange={(e) => { setFilters((f) => ({ ...f, dateFrom: e.target.value, page: 1 })) }}
             />
           </div>
 
@@ -118,13 +135,13 @@ export function EventsDashboard() {
               type="date"
               className="input-base"
               value={filters.dateTo ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, dateTo: e.target.value })) }}
+              onChange={(e) => { setFilters((f) => ({ ...f, dateTo: e.target.value, page: 1 })) }}
             />
           </div>
 
           <button
             className="btn-ghost text-xs col-span-2 md:col-span-4 justify-start"
-            onClick={() => { setFilters({}) }}
+            onClick={() => { setFilters({ page: 1, pageSize: 20, sortBy: 'date' }) }}
           >
             Limpiar filtros
           </button>
@@ -193,6 +210,29 @@ export function EventsDashboard() {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination controls */}
+          <div className="px-4 py-3 border-t border-surface-border flex items-center justify-between text-xs text-zinc-500">
+            <div>
+              Página {page}
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="btn-ghost text-xs"
+                onClick={() => { setFilters((f) => ({ ...f, page: Math.max(1, (f.page ?? 1) - 1) })) }}
+                disabled={page === 1}
+              >
+                ← Anterior
+              </button>
+              <button
+                className="btn-ghost text-xs"
+                onClick={() => { setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 })) }}
+                disabled={events.length < pageSize}
+              >
+                Siguiente →
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
