@@ -4,6 +4,20 @@ import type { Database } from '@/lib/database.types'
 
 type EventRow = Database['public']['Tables']['events']['Row']
 
+async function uploadEventImage(userId: string, image: File): Promise<string> {
+  const ext = image.name.split('.').pop() ?? 'jpg'
+  const path = `events/${userId}/${String(Date.now())}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('event-images')
+    .upload(path, image, { upsert: false })
+
+  if (uploadError) throw uploadError
+
+  const { data: urlData } = supabase.storage.from('event-images').getPublicUrl(path)
+  return urlData.publicUrl
+}
+
 function mapEvent(row: EventRow & { places?: Database['public']['Tables']['places']['Row'] | null }): Event {
   return {
     id: row.id,
@@ -95,14 +109,7 @@ export async function createEvent(input: EventFormData): Promise<Event> {
 
   let imageUrl: string | null = null
   if (input.image) {
-    const ext = input.image.name.split('.').pop() ?? 'jpg'
-    const path = `events/${userData.user.id}/${String(Date.now())}.${ext}`
-    const { error: uploadError } = await supabase.storage
-      .from('event-images')
-      .upload(path, input.image, { upsert: false })
-    if (uploadError) throw uploadError
-    const { data: urlData } = supabase.storage.from('event-images').getPublicUrl(path)
-    imageUrl = urlData.publicUrl
+    imageUrl = await uploadEventImage(userData.user.id, input.image)
   }
 
   const { data, error } = await supabase
@@ -128,6 +135,14 @@ export async function createEvent(input: EventFormData): Promise<Event> {
 }
 
 export async function updateEvent(id: string, input: Partial<EventFormData>): Promise<Event> {
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData.user) throw new Error('Not authenticated')
+
+  let imageUrl: string | undefined
+  if (input.image) {
+    imageUrl = await uploadEventImage(userData.user.id, input.image)
+  }
+
   const { data, error } = await supabase
     .from('events')
     .update({
@@ -141,6 +156,7 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
       ...(input.includesLightingBudget !== undefined && {
         includes_lighting_budget: input.includesLightingBudget,
       }),
+      ...(imageUrl !== undefined && { image_url: imageUrl }),
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)

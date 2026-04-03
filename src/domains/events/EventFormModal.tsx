@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { eventSchema } from '@/lib/validations'
@@ -7,12 +8,17 @@ import type { EventStatus } from '@/lib/database.types'
 import { Modal } from '@/shared/Modal'
 import { PlaceDropdown } from '@/domains/places'
 import { useCreateEvent, useUpdateEvent } from './events.hooks'
+import { Upload, X } from 'lucide-react'
+
+type EventFormInitialData = Partial<Omit<EventFormData, 'image'>> & {
+  imageUrl?: string
+}
 
 interface EventFormModalProps {
   open: boolean
   onClose: () => void
   mode: 'create' | 'edit'
-  initialData?: Partial<EventFormData>
+  initialData?: EventFormInitialData
   eventId?: string
 }
 
@@ -25,6 +31,23 @@ export function EventFormModal({
 }: EventFormModalProps) {
   const create = useCreateEvent()
   const update = useUpdateEvent()
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined)
+  const [imagePreview, setImagePreview] = useState<string | undefined>()
+
+  const initialImageUrl = useMemo(() => initialData?.imageUrl, [initialData?.imageUrl])
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview(initialImageUrl)
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(imageFile)
+    setImagePreview(objectUrl)
+    return () => {
+      URL.revokeObjectURL(objectUrl)
+    }
+  }, [imageFile, initialImageUrl])
 
   const {
     register,
@@ -42,11 +65,18 @@ export function EventFormModal({
   })
 
   const onSubmit = async (data: EventFormData) => {
-    if (mode === 'create') {
-      await create.mutateAsync(data)
-    } else if (eventId) {
-      await update.mutateAsync({ id: eventId, data })
+    const payload: EventFormData = {
+      ...data,
+      image: imageFile,
     }
+
+    if (mode === 'create') {
+      await create.mutateAsync(payload)
+    } else if (eventId) {
+      await update.mutateAsync({ id: eventId, data: payload })
+    }
+
+    setImageFile(undefined)
     reset()
     onClose()
   }
@@ -128,6 +158,41 @@ export function EventFormModal({
           />
         </div>
 
+        {/* Image upload */}
+        <div>
+          <label className="label-base">Imagen del evento (opcional)</label>
+          {!imagePreview ? (
+            <label className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-surface-border bg-surface px-4 py-7 cursor-pointer hover:border-brand-500/50 transition-colors">
+              <Upload size={18} className="text-zinc-500" />
+              <span className="text-sm text-zinc-400">Subir imagen JPG, PNG o WEBP</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) setImageFile(file)
+                }}
+              />
+            </label>
+          ) : (
+            <div className="relative rounded-xl overflow-hidden border border-surface-border bg-surface">
+              <img src={imagePreview} alt="Preview evento" className="w-full h-44 object-cover" />
+              <button
+                type="button"
+                onClick={() => {
+                  setImageFile(undefined)
+                  setImagePreview(undefined)
+                }}
+                className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-black/70 text-white hover:bg-black/80"
+              >
+                <X size={12} />
+                Quitar
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Toggles */}
         <div className="flex items-center gap-2 p-3 bg-surface rounded-lg border border-surface-border">
           <input
@@ -145,7 +210,11 @@ export function EventFormModal({
           <button
             type="button"
             className="btn-secondary flex-1 justify-center"
-            onClick={onClose}
+            onClick={() => {
+              setImageFile(undefined)
+              setImagePreview(initialImageUrl)
+              onClose()
+            }}
           >
             Cancelar
           </button>

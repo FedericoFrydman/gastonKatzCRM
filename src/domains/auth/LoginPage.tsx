@@ -3,21 +3,47 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 
 export function LoginPage() {
+  const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
+    setSuccess(null)
     setError(null)
+
+    if (mode === 'signup' && password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos'
-        : error.message)
+    if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(
+          error.message === 'Invalid login credentials'
+            ? 'Email o contraseña incorrectos'
+            : error.message,
+        )
+      }
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess(
+          'Cuenta creada. Si tenés confirmación por email activa, revisá tu bandeja para continuar.',
+        )
+        setMode('login')
+        setConfirmPassword('')
+      }
     }
+
     setLoading(false)
   }
 
@@ -42,6 +68,39 @@ export function LoginPage() {
           </div>
           <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">GastonKatz CRM</h1>
           <p className="text-zinc-500 text-sm mt-1">Administración de eventos</p>
+        </div>
+
+        <div className="mb-4 flex rounded-lg border border-surface-border bg-surface-tertiary p-1">
+          <button
+            type="button"
+            onClick={() => {
+              setMode('login')
+              setError(null)
+              setSuccess(null)
+            }}
+            className={
+              mode === 'login'
+                ? 'flex-1 rounded-md bg-brand-500 text-white text-sm font-medium py-1.5'
+                : 'flex-1 rounded-md text-zinc-400 text-sm font-medium py-1.5 hover:text-zinc-200'
+            }
+          >
+            Ingresar
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('signup')
+              setError(null)
+              setSuccess(null)
+            }}
+            className={
+              mode === 'signup'
+                ? 'flex-1 rounded-md bg-brand-500 text-white text-sm font-medium py-1.5'
+                : 'flex-1 rounded-md text-zinc-400 text-sm font-medium py-1.5 hover:text-zinc-200'
+            }
+          >
+            Crear cuenta
+          </button>
         </div>
 
         <form
@@ -79,6 +138,34 @@ export function LoginPage() {
             />
           </div>
 
+          {mode === 'signup' && (
+            <div>
+              <label htmlFor="confirm-password" className="label-base">Confirmar contraseña</label>
+              <input
+                id="confirm-password"
+                type="password"
+                className="input-base"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                }}
+                required
+                autoComplete="new-password"
+              />
+            </div>
+          )}
+
+          {success && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-emerald-400 text-sm"
+            >
+              {success}
+            </motion.p>
+          )}
+
           {error && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
@@ -94,7 +181,7 @@ export function LoginPage() {
             className="btn-primary w-full justify-center"
             disabled={loading}
           >
-            {loading ? 'Ingresando...' : 'Ingresar'}
+            {loading ? 'Procesando...' : mode === 'login' ? 'Ingresar' : 'Crear cuenta'}
           </button>
         </form>
       </motion.div>

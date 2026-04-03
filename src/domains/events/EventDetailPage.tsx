@@ -155,6 +155,7 @@ export function EventDetailPage() {
           description: event.description ?? undefined,
           status: event.status,
           includesLightingBudget: event.includesLightingBudget,
+          imageUrl: event.imageUrl ?? undefined,
         }}
       />
 
