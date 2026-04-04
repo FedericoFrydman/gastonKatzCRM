@@ -33,6 +33,7 @@ export function EventFormModal({
   const update = useUpdateEvent()
   const [imageFile, setImageFile] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | undefined>()
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const initialImageUrl = useMemo(() => initialData?.imageUrl, [initialData?.imageUrl])
 
@@ -65,20 +66,26 @@ export function EventFormModal({
   })
 
   const onSubmit = async (data: EventFormData) => {
+    setSubmitError(null)
+
     const payload: EventFormData = {
       ...data,
       image: imageFile,
     }
 
-    if (mode === 'create') {
-      await create.mutateAsync(payload)
-    } else if (eventId) {
-      await update.mutateAsync({ id: eventId, data: payload })
-    }
+    try {
+      if (mode === 'create') {
+        await create.mutateAsync(payload)
+      } else if (eventId) {
+        await update.mutateAsync({ id: eventId, data: payload })
+      }
 
-    setImageFile(undefined)
-    reset()
-    onClose()
+      setImageFile(undefined)
+      reset()
+      onClose()
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'No se pudo guardar el evento')
+    }
   }
 
   return (
@@ -89,6 +96,12 @@ export function EventFormModal({
       size="lg"
     >
       <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+        {submitError && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+            {submitError}
+          </div>
+        )}
+
         {/* Name */}
         <div>
           <label className="label-base">Nombre del evento *</label>

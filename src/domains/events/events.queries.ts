@@ -4,6 +4,11 @@ import type { Database } from '@/lib/database.types'
 
 type EventRow = Database['public']['Tables']['events']['Row']
 
+function normalizeOptionalString(value: string | undefined): string | null {
+  if (value === undefined || value.trim() === '') return null
+  return value
+}
+
 async function uploadEventImage(userId: string, image: File): Promise<string> {
   const ext = image.name.split('.').pop() ?? 'jpg'
   const path = `events/${userId}/${String(Date.now())}.${ext}`
@@ -126,6 +131,10 @@ export async function createEvent(input: EventFormData): Promise<Event> {
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) throw new Error('Not authenticated')
 
+  const normalizedEndTime = normalizeOptionalString(input.endTime)
+  const normalizedPlaceId = normalizeOptionalString(input.placeId)
+  const normalizedDescription = normalizeOptionalString(input.description)
+
   let imageUrl: string | null = null
   if (input.image) {
     imageUrl = await uploadEventImage(userData.user.id, input.image)
@@ -138,9 +147,9 @@ export async function createEvent(input: EventFormData): Promise<Event> {
       name: input.name,
       date: input.date,
       start_time: input.startTime,
-      end_time: input.endTime ?? null,
-      place_id: input.placeId ?? null,
-      description: input.description ?? null,
+      end_time: normalizedEndTime,
+      place_id: normalizedPlaceId,
+      description: normalizedDescription,
       status: input.status,
       includes_lighting_budget: input.includesLightingBudget,
       image_url: imageUrl,
@@ -157,6 +166,13 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) throw new Error('Not authenticated')
 
+  const normalizedEndTime =
+    input.endTime !== undefined ? normalizeOptionalString(input.endTime) : undefined
+  const normalizedPlaceId =
+    input.placeId !== undefined ? normalizeOptionalString(input.placeId) : undefined
+  const normalizedDescription =
+    input.description !== undefined ? normalizeOptionalString(input.description) : undefined
+
   let imageUrl: string | undefined
   if (input.image) {
     imageUrl = await uploadEventImage(userData.user.id, input.image)
@@ -168,9 +184,9 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
       ...(input.name !== undefined && { name: input.name }),
       ...(input.date !== undefined && { date: input.date }),
       ...(input.startTime !== undefined && { start_time: input.startTime }),
-      ...(input.endTime !== undefined && { end_time: input.endTime ?? null }),
-      ...(input.placeId !== undefined && { place_id: input.placeId ?? null }),
-      ...(input.description !== undefined && { description: input.description ?? null }),
+      ...(normalizedEndTime !== undefined && { end_time: normalizedEndTime }),
+      ...(normalizedPlaceId !== undefined && { place_id: normalizedPlaceId }),
+      ...(normalizedDescription !== undefined && { description: normalizedDescription }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.includesLightingBudget !== undefined && {
         includes_lighting_budget: input.includesLightingBudget,
