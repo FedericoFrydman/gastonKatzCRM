@@ -1,8 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from './useAuth'
+
+const getAuthFailureMessage = (error: unknown) => {
+  if (error instanceof TypeError && error.message === 'Failed to fetch') {
+    return 'No se pudo conectar con Supabase. Verificá la URL del proyecto y desactivá extensiones del navegador que intercepten solicitudes.'
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return 'Ocurrió un error inesperado al autenticar.'
+}
 
 export function LoginPage() {
+  const { user, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -10,6 +27,13 @@ export function LoginPage() {
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const redirectTo = location.state?.from?.pathname ?? '/dashboard'
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(redirectTo, { replace: true })
+    }
+  }, [authLoading, navigate, redirectTo, user])
 
   const handleSubmit = async () => {
     setSuccess(null)
@@ -22,35 +46,39 @@ export function LoginPage() {
 
     setLoading(true)
 
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
-        setError(
-          error.message === 'Invalid login credentials'
-            ? 'Email o contraseña incorrectos'
-            : error.message,
-        )
-      }
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
-      })
-      if (error) {
-        setError(error.message)
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          setError(
+            error.message === 'Invalid login credentials'
+              ? 'Email o contraseña incorrectos'
+              : error.message,
+          )
+        }
       } else {
-        setSuccess(
-          'Cuenta creada. Si tenés confirmación por email activa, revisá tu bandeja para continuar.',
-        )
-        setMode('login')
-        setConfirmPassword('')
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+          },
+        })
+        if (error) {
+          setError(error.message)
+        } else {
+          setSuccess(
+            'Cuenta creada. Si tenés confirmación por email activa, revisá tu bandeja para continuar.',
+          )
+          setMode('login')
+          setConfirmPassword('')
+        }
       }
+    } catch (error) {
+      setError(getAuthFailureMessage(error))
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
@@ -117,28 +145,36 @@ export function LoginPage() {
           className="card space-y-4"
         >
           <div>
-            <label htmlFor="email" className="label-base">Email</label>
+            <label htmlFor="email" className="label-base">
+              Email
+            </label>
             <input
               id="email"
               type="email"
               className="input-base"
               placeholder="admin@example.com"
               value={email}
-              onChange={(e) => { setEmail(e.target.value) }}
+              onChange={(e) => {
+                setEmail(e.target.value)
+              }}
               required
               autoComplete="email"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="label-base">Contraseña</label>
+            <label htmlFor="password" className="label-base">
+              Contraseña
+            </label>
             <input
               id="password"
               type="password"
               className="input-base"
               placeholder="••••••••"
               value={password}
-              onChange={(e) => { setPassword(e.target.value) }}
+              onChange={(e) => {
+                setPassword(e.target.value)
+              }}
               required
               autoComplete="current-password"
             />
@@ -146,7 +182,9 @@ export function LoginPage() {
 
           {mode === 'signup' && (
             <div>
-              <label htmlFor="confirm-password" className="label-base">Confirmar contraseña</label>
+              <label htmlFor="confirm-password" className="label-base">
+                Confirmar contraseña
+              </label>
               <input
                 id="confirm-password"
                 type="password"
@@ -182,11 +220,7 @@ export function LoginPage() {
             </motion.p>
           )}
 
-          <button
-            type="submit"
-            className="btn-primary w-full justify-center"
-            disabled={loading}
-          >
+          <button type="submit" className="btn-primary w-full justify-center" disabled={loading}>
             {loading ? 'Procesando...' : mode === 'login' ? 'Ingresar' : 'Crear cuenta'}
           </button>
         </form>
