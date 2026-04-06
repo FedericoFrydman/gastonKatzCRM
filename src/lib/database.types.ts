@@ -44,6 +44,9 @@ export type Database = {
           end_time: string | null
           place_id: string | null
           description: string | null
+          whatsapp: string | null
+          email: string | null
+          ages: string | null
           status: EventStatus
           includes_lighting_budget: boolean
           image_url: string | null
@@ -60,6 +63,9 @@ export type Database = {
           end_time?: string | null
           place_id?: string | null
           description?: string | null
+          whatsapp?: string | null
+          email?: string | null
+          ages?: string | null
           status?: EventStatus
           includes_lighting_budget?: boolean
           image_url?: string | null
@@ -76,6 +82,9 @@ export type Database = {
           end_time?: string | null
           place_id?: string | null
           description?: string | null
+          whatsapp?: string | null
+          email?: string | null
+          ages?: string | null
           status?: EventStatus
           includes_lighting_budget?: boolean
           image_url?: string | null

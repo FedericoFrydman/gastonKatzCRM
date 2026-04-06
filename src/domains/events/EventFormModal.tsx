@@ -166,6 +166,39 @@ export function EventFormModal({ open, onClose, mode, initialData, eventId }: Ev
           />
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="label-base">WhatsApp</label>
+            <input
+              {...register('whatsapp')}
+              className="input-base"
+              placeholder="Ej: +54 9 11 1234 5678"
+            />
+            {errors.whatsapp && <p className="text-red-400 text-xs mt-1">{errors.whatsapp.message}</p>}
+          </div>
+
+          <div>
+            <label className="label-base">Email</label>
+            <input
+              {...register('email')}
+              type="email"
+              className="input-base"
+              placeholder="ejemplo@mail.com"
+            />
+            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+          </div>
+        </div>
+
+        <div>
+          <label className="label-base">Edades</label>
+          <input
+            {...register('ages')}
+            className="input-base"
+            placeholder="Ej: 5 a 8 años, adultos, mixto..."
+          />
+          {errors.ages && <p className="text-red-400 text-xs mt-1">{errors.ages.message}</p>}
+        </div>
+
         {/* Image upload */}
         <div>
           <label className="label-base">Imagen del evento (opcional)</label>

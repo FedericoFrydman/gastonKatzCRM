@@ -17,6 +17,14 @@ export const eventSchema = z.object({
     .or(z.literal('')),
   placeId: z.string().uuid('Lugar inválido').optional().or(z.literal('')),
   description: z.string().max(2000).optional(),
+  whatsapp: z
+    .string()
+    .trim()
+    .regex(/^[+\d\s()\-]{7,20}$/, 'WhatsApp inválido')
+    .optional()
+    .or(z.literal('')),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  ages: z.string().max(120, 'Edades demasiado largas').optional(),
   status: z.enum(['confirmed', 'query', 'budget_pending', 'reserved']),
   includesLightingBudget: z.boolean(),
 })

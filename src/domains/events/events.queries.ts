@@ -12,7 +12,7 @@ type SelectedPlaceRow = Pick<
 const EVENT_IMAGES_BUCKET = 'event-images'
 const EVENT_IMAGE_SIGNED_URL_TTL_SECONDS = 60 * 60
 const EVENT_SELECT =
-  'id, owner_id, name, date, start_time, end_time, place_id, description, status, includes_lighting_budget, image_url, created_by, created_at, updated_at, places(id, name, address, clarification, created_at, updated_at)'
+  'id, owner_id, name, date, start_time, end_time, place_id, description, whatsapp, email, ages, status, includes_lighting_budget, image_url, created_by, created_at, updated_at, places(id, name, address, clarification, created_at, updated_at)'
 
 function normalizeOptionalString(value: string | undefined): string | null {
   if (value === undefined || value.trim() === '') return null
@@ -89,6 +89,9 @@ async function mapEvent(row: EventRow & { places?: SelectedPlaceRow | null }): P
         }
       : undefined,
     description: row.description,
+    whatsapp: row.whatsapp,
+    email: row.email,
+    ages: row.ages,
     status: row.status,
     includesLightingBudget: row.includes_lighting_budget,
     imageUrl: signedImageUrl,
@@ -205,6 +208,9 @@ export async function createEvent(input: EventFormData): Promise<Event> {
   const normalizedEndTime = normalizeOptionalString(input.endTime)
   const normalizedPlaceId = normalizeOptionalString(input.placeId)
   const normalizedDescription = normalizeOptionalString(input.description)
+  const normalizedWhatsapp = normalizeOptionalString(input.whatsapp)
+  const normalizedEmail = normalizeOptionalString(input.email)
+  const normalizedAges = normalizeOptionalString(input.ages)
 
   let imageUrl: string | null = null
   if (input.image) {
@@ -221,6 +227,9 @@ export async function createEvent(input: EventFormData): Promise<Event> {
       end_time: normalizedEndTime,
       place_id: normalizedPlaceId,
       description: normalizedDescription,
+      whatsapp: normalizedWhatsapp,
+      email: normalizedEmail,
+      ages: normalizedAges,
       status: input.status,
       includes_lighting_budget: input.includesLightingBudget,
       image_url: imageUrl,
@@ -243,6 +252,11 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
     input.placeId !== undefined ? normalizeOptionalString(input.placeId) : undefined
   const normalizedDescription =
     input.description !== undefined ? normalizeOptionalString(input.description) : undefined
+  const normalizedWhatsapp =
+    input.whatsapp !== undefined ? normalizeOptionalString(input.whatsapp) : undefined
+  const normalizedEmail =
+    input.email !== undefined ? normalizeOptionalString(input.email) : undefined
+  const normalizedAges = input.ages !== undefined ? normalizeOptionalString(input.ages) : undefined
 
   let imageUrl: string | undefined
   if (input.image) {
@@ -258,6 +272,9 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
       ...(normalizedEndTime !== undefined && { end_time: normalizedEndTime }),
       ...(normalizedPlaceId !== undefined && { place_id: normalizedPlaceId }),
       ...(normalizedDescription !== undefined && { description: normalizedDescription }),
+      ...(normalizedWhatsapp !== undefined && { whatsapp: normalizedWhatsapp }),
+      ...(normalizedEmail !== undefined && { email: normalizedEmail }),
+      ...(normalizedAges !== undefined && { ages: normalizedAges }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.includesLightingBudget !== undefined && {
         includes_lighting_budget: input.includesLightingBudget,

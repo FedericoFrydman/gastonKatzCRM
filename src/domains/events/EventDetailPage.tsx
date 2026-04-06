@@ -10,12 +10,16 @@ import {
   FileText,
   Lightbulb,
   DollarSign,
+  Mail,
+  MessageCircle,
+  Users,
 } from 'lucide-react'
 import { useEvent, useDeleteEvent } from './events.hooks'
 import { EventStatusBadge } from '@/shared/StatusBadge'
 import { EventFormModal } from './EventFormModal'
 import { EconomicsPanel } from '@/domains/economics'
 import { formatDate, formatTime } from '@/lib/utils'
+import type { EventFormData } from '@/lib/types'
 
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -40,6 +44,21 @@ export function EventDetailPage() {
   const handleDelete = async () => {
     await deleteEvent.mutateAsync(event.id)
     void navigate('/dashboard')
+  }
+
+  const editInitialData: Partial<Omit<EventFormData, 'image'>> & { imageUrl?: string } = {
+    name: event.name,
+    date: event.date,
+    startTime: event.startTime,
+    endTime: event.endTime ?? undefined,
+    placeId: event.placeId ?? undefined,
+    description: event.description ?? undefined,
+    whatsapp: event.whatsapp ?? undefined,
+    email: event.email ?? undefined,
+    ages: event.ages ?? undefined,
+    status: event.status,
+    includesLightingBudget: event.includesLightingBudget,
+    imageUrl: event.imageUrl ?? undefined,
   }
 
   return (
@@ -133,6 +152,27 @@ export function EventDetailPage() {
               <p className="text-zinc-400 leading-relaxed">{event.description}</p>
             </div>
           )}
+
+          {event.whatsapp && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <MessageCircle size={15} className="text-zinc-600 shrink-0" />
+              <span className="text-zinc-300">{event.whatsapp}</span>
+            </div>
+          )}
+
+          {event.email && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <Mail size={15} className="text-zinc-600 shrink-0" />
+              <span className="text-zinc-300">{event.email}</span>
+            </div>
+          )}
+
+          {event.ages && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <Users size={15} className="text-zinc-600 shrink-0" />
+              <span className="text-zinc-300">{event.ages}</span>
+            </div>
+          )}
         </div>
 
         {/* Image */}
@@ -160,17 +200,7 @@ export function EventDetailPage() {
         }}
         mode="edit"
         eventId={event.id}
-        initialData={{
-          name: event.name,
-          date: event.date,
-          startTime: event.startTime,
-          endTime: event.endTime ?? undefined,
-          placeId: event.placeId ?? undefined,
-          description: event.description ?? undefined,
-          status: event.status,
-          includesLightingBudget: event.includesLightingBudget,
-          imageUrl: event.imageUrl ?? undefined,
-        }}
+        initialData={editInitialData}
       />
 
       {/* Delete confirm */}

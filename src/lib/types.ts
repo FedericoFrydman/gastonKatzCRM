@@ -20,6 +20,9 @@ export interface Event {
   placeId: string | null
   place?: Place
   description: string | null
+  whatsapp: string | null
+  email: string | null
+  ages: string | null
   status: EventStatus
   includesLightingBudget: boolean
   imageUrl: string | null
@@ -89,6 +92,9 @@ export type EventFormData = {
   endTime?: string
   placeId?: string
   description?: string
+  whatsapp?: string
+  email?: string
+  ages?: string
   status: EventStatus
   includesLightingBudget: boolean
   image?: File
