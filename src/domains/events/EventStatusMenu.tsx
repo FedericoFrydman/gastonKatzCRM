@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { useUpdateEvent } from './events.hooks'
@@ -186,48 +186,45 @@ export function EventStatusMenu({
       )}
 
       {/* Dropdown */}
-      <AnimatePresence>
-        {open && typeof document !== 'undefined' && createPortal(
-          <motion.div
-            ref={menuRef}
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            style={{ top: menuPosition.top, left: menuPosition.left, position: 'fixed' }}
-            className="z-[70] w-52 bg-surface border border-surface-border rounded-xl shadow-xl overflow-hidden"
-          >
-            <div className="py-1">
-              {ALL_STATUSES.map((status, i) => {
-                const s = STATUS_STYLES[status]
-                const isActive = status === currentStatus
-                return (
-                  <motion.button
-                    key={status}
-                    type="button"
-                    custom={i}
-                    variants={itemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    onClick={() => { handleSelect(status) }}
-                    className={cn(
-                      'w-full flex items-center justify-between px-3 py-2 text-sm transition-colors',
-                      isActive ? cn(s.bg, s.text) : 'text-zinc-300 hover:bg-surface-hover',
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className={cn('w-2 h-2 rounded-full shrink-0', s.dot)} />
-                      {EVENT_STATUS_LABELS[status]}
-                    </div>
-                    {isActive && <Check size={13} className="opacity-70" />}
-                  </motion.button>
-                )
-              })}
-            </div>
-          </motion.div>,
-          document.body,
-        )}
-      </AnimatePresence>
+      {open && typeof document !== 'undefined' && createPortal(
+        <motion.div
+          ref={menuRef}
+          variants={dropdownVariants}
+          initial="hidden"
+          animate="visible"
+          style={{ top: menuPosition.top, left: menuPosition.left, position: 'fixed' }}
+          className="z-[70] w-52 bg-surface border border-surface-border rounded-xl shadow-xl overflow-hidden"
+        >
+          <div className="py-1">
+            {ALL_STATUSES.map((status, i) => {
+              const s = STATUS_STYLES[status]
+              const isActive = status === currentStatus
+              return (
+                <motion.button
+                  key={status}
+                  type="button"
+                  custom={i}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  onClick={() => { handleSelect(status) }}
+                  className={cn(
+                    'w-full flex items-center justify-between px-3 py-2 text-sm transition-colors',
+                    isActive ? cn(s.bg, s.text) : 'text-zinc-300 hover:bg-surface-hover',
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={cn('w-2 h-2 rounded-full shrink-0', s.dot)} />
+                    {EVENT_STATUS_LABELS[status]}
+                  </div>
+                  {isActive && <Check size={13} className="opacity-70" />}
+                </motion.button>
+              )
+            })}
+          </div>
+        </motion.div>,
+        document.body,
+      )}
     </div>
   )
 }
