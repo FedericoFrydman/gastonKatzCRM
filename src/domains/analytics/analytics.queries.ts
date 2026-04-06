@@ -27,7 +27,7 @@ export async function fetchAnalyticsEvents(): Promise<AnalyticsEventRow[]> {
 export async function fetchAnalyticsPayments(): Promise<AnalyticsPaymentRow[]> {
   const { data, error } = await supabase
     .from('event_payment_summary')
-    .select('*')
+    .select('event_id, total_amount, total_paid, balance, payment_status')
 
   if (error) throw error
   return data as AnalyticsPaymentRow[]

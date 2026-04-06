@@ -41,7 +41,7 @@ function mapSummary(row: SummaryRow): EventPaymentSummary {
 export async function fetchPayments(eventId: string): Promise<EventPayment[]> {
   const { data, error } = await supabase
     .from('event_payments')
-    .select('*')
+    .select('id, event_id, amount, type, notes, payment_date, created_at')
     .eq('event_id', eventId)
     .order('payment_date', { ascending: false })
 
@@ -52,7 +52,7 @@ export async function fetchPayments(eventId: string): Promise<EventPayment[]> {
 export async function fetchFinancials(eventId: string): Promise<EventFinancials | null> {
   const { data, error } = await supabase
     .from('event_financials')
-    .select('*')
+    .select('id, event_id, total_amount, created_at, updated_at')
     .eq('event_id', eventId)
     .maybeSingle()
 
@@ -64,7 +64,7 @@ export async function fetchFinancials(eventId: string): Promise<EventFinancials 
 export async function fetchPaymentSummary(eventId: string): Promise<EventPaymentSummary | null> {
   const { data, error } = await supabase
     .from('event_payment_summary')
-    .select('*')
+    .select('event_id, total_amount, total_paid, balance, payment_status')
     .eq('event_id', eventId)
     .maybeSingle()
 

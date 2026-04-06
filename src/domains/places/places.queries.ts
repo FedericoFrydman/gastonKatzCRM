@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/supabase'
 import type { Place, PlaceFormData } from '@/lib/types'
 
+const PLACE_SELECT = 'id, name, address, clarification, created_at, updated_at'
+
 function mapPlace(row: {
   id: string
-  owner_id: string
   name: string
   address: string
   clarification: string | null
@@ -23,7 +24,7 @@ function mapPlace(row: {
 export async function fetchPlaces(): Promise<Place[]> {
   const { data, error } = await supabase
     .from('places')
-    .select('*')
+    .select(PLACE_SELECT)
     .order('name', { ascending: true })
 
   if (error) throw error
@@ -31,7 +32,7 @@ export async function fetchPlaces(): Promise<Place[]> {
 }
 
 export async function fetchPlace(id: string): Promise<Place> {
-  const { data, error } = await supabase.from('places').select('*').eq('id', id).single()
+  const { data, error } = await supabase.from('places').select(PLACE_SELECT).eq('id', id).single()
 
   if (error) throw error
   return mapPlace(data)
@@ -49,7 +50,7 @@ export async function createPlace(input: PlaceFormData): Promise<Place> {
       address: input.address,
       clarification: input.clarification ?? null,
     })
-    .select()
+    .select(PLACE_SELECT)
     .single()
 
   if (error) throw error
@@ -66,7 +67,7 @@ export async function updatePlace(id: string, input: Partial<PlaceFormData>): Pr
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .select()
+    .select(PLACE_SELECT)
     .single()
 
   if (error) throw error

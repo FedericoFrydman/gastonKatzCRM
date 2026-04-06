@@ -4,6 +4,15 @@ import type { Event, EventFilters, EventFormData } from '@/lib/types'
 import type { Database } from '@/lib/database.types'
 
 type EventRow = Database['public']['Tables']['events']['Row']
+type SelectedPlaceRow = Pick<
+  Database['public']['Tables']['places']['Row'],
+  'id' | 'name' | 'address' | 'clarification' | 'created_at' | 'updated_at'
+>
+
+const EVENT_IMAGES_BUCKET = 'event-images'
+const EVENT_IMAGE_SIGNED_URL_TTL_SECONDS = 60 * 60
+const EVENT_SELECT =
+  'id, owner_id, name, date, start_time, end_time, place_id, description, status, includes_lighting_budget, image_url, created_by, created_at, updated_at, places(id, name, address, clarification, created_at, updated_at)'
 
 function normalizeOptionalString(value: string | undefined): string | null {
   if (value === undefined || value.trim() === '') return null
@@ -15,16 +24,51 @@ async function uploadEventImage(userId: string, image: File): Promise<string> {
   const path = `events/${userId}/${String(Date.now())}.${ext}`
 
   const { error: uploadError } = await supabase.storage
-    .from('event-images')
+    .from(EVENT_IMAGES_BUCKET)
     .upload(path, image, { upsert: false })
 
   if (uploadError) throw uploadError
 
-  const { data: urlData } = supabase.storage.from('event-images').getPublicUrl(path)
-  return urlData.publicUrl
+  return path
 }
 
-function mapEvent(row: EventRow & { places?: Database['public']['Tables']['places']['Row'] | null }): Event {
+function getEventImagePath(imageReference: string | null): string | null {
+  if (!imageReference) return null
+
+  if (!imageReference.startsWith('http')) {
+    return imageReference
+  }
+
+  try {
+    const parsedUrl = new URL(imageReference)
+    const match = parsedUrl.pathname.match(/\/storage\/v1\/object\/(?:public|sign|authenticated)\/event-images\/(.+)$/)
+
+    if (!match) return null
+
+    return decodeURIComponent(match[1])
+  } catch {
+    return null
+  }
+}
+
+async function getSignedEventImageUrl(imageReference: string | null): Promise<string | null> {
+  const path = getEventImagePath(imageReference)
+  if (!path) return null
+
+  const { data, error } = await supabase.storage
+    .from(EVENT_IMAGES_BUCKET)
+    .createSignedUrl(path, EVENT_IMAGE_SIGNED_URL_TTL_SECONDS)
+
+  if (error) {
+    return null
+  }
+
+  return data.signedUrl
+}
+
+async function mapEvent(row: EventRow & { places?: SelectedPlaceRow | null }): Promise<Event> {
+  const signedImageUrl = await getSignedEventImageUrl(row.image_url)
+
   return {
     id: row.id,
     name: row.name,
@@ -45,7 +89,7 @@ function mapEvent(row: EventRow & { places?: Database['public']['Tables']['place
     description: row.description,
     status: row.status,
     includesLightingBudget: row.includes_lighting_budget,
-    imageUrl: row.image_url,
+    imageUrl: signedImageUrl,
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -68,9 +112,7 @@ function getExportDateTo(filters?: EventFilters): string | undefined {
 }
 
 function buildEventsQuery(filters?: EventFilters, options?: { applyExportWindow?: boolean }) {
-  let query = supabase
-    .from('events')
-    .select('*, places(*)')
+  let query = supabase.from('events').select(EVENT_SELECT)
 
   let orderKey: 'date' | 'status' | 'created_at' = 'date'
   let ascending = true
@@ -118,14 +160,14 @@ export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
 
   const { data, error } = await query
   if (error) throw error
-  return data.map(mapEvent)
+  return Promise.all(data.map(mapEvent))
 }
 
 export async function fetchEventsForExport(filters?: EventFilters): Promise<Event[]> {
   const { data, error } = await buildEventsQuery(filters, { applyExportWindow: true })
 
   if (error) throw error
-  return data.map(mapEvent)
+  return Promise.all(data.map(mapEvent))
 }
 
 export async function fetchEventsByMonth(year: number, month: number): Promise<Event[]> {
@@ -138,21 +180,17 @@ export async function fetchEventsByMonth(year: number, month: number): Promise<E
 
   const { data, error } = await supabase
     .from('events')
-    .select('*, places(*)')
+    .select(EVENT_SELECT)
     .gte('date', from)
     .lte('date', to)
     .order('start_time', { ascending: true })
 
   if (error) throw error
-  return data.map(mapEvent)
+  return Promise.all(data.map(mapEvent))
 }
 
 export async function fetchEvent(id: string): Promise<Event> {
-  const { data, error } = await supabase
-    .from('events')
-    .select('*, places(*)')
-    .eq('id', id)
-    .single()
+  const { data, error } = await supabase.from('events').select(EVENT_SELECT).eq('id', id).single()
 
   if (error) throw error
   return mapEvent(data)
@@ -186,7 +224,7 @@ export async function createEvent(input: EventFormData): Promise<Event> {
       image_url: imageUrl,
       created_by: userData.user.id,
     })
-    .select('*, places(*)')
+    .select(EVENT_SELECT)
     .single()
 
   if (error) throw error
@@ -226,7 +264,7 @@ export async function updateEvent(id: string, input: Partial<EventFormData>): Pr
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .select('*, places(*)')
+    .select(EVENT_SELECT)
     .single()
 
   if (error) throw error
