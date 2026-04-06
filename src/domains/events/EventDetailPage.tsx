@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Pencil, Trash2, MapPin, Clock, FileText, Lightbulb, DollarSign } from 'lucide-react'
+import {
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  MapPin,
+  Clock,
+  FileText,
+  Lightbulb,
+  DollarSign,
+} from 'lucide-react'
 import { useEvent, useDeleteEvent } from './events.hooks'
 import { EventStatusBadge } from '@/shared/StatusBadge'
 import { EventFormModal } from './EventFormModal'
@@ -25,9 +34,7 @@ export function EventDetailPage() {
   }
 
   if (!event) {
-    return (
-      <div className="p-4 md:p-6 text-zinc-500 text-sm">Evento no encontrado.</div>
-    )
+    return <div className="p-4 md:p-6 text-zinc-500 text-sm">Evento no encontrado.</div>
   }
 
   const handleDelete = async () => {
@@ -45,7 +52,9 @@ export function EventDetailPage() {
       {/* Back */}
       <button
         className="btn-ghost mb-4 -ml-1"
-        onClick={() => { void navigate('/dashboard') }}
+        onClick={() => {
+          void navigate('/dashboard')
+        }}
       >
         <ArrowLeft size={16} />
         Volver
@@ -63,13 +72,20 @@ export function EventDetailPage() {
           </p>
         </div>
         <div className="flex w-full sm:w-auto items-center gap-2 shrink-0">
-          <button className="btn-secondary flex-1 sm:flex-none justify-center" onClick={() => { setEditOpen(true) }}>
+          <button
+            className="btn-secondary flex-1 sm:flex-none justify-center"
+            onClick={() => {
+              setEditOpen(true)
+            }}
+          >
             <Pencil size={15} />
             Editar
           </button>
           <button
             className="btn-ghost border border-surface-border hover:text-red-400 justify-center"
-            onClick={() => { setDeleteConfirm(true) }}
+            onClick={() => {
+              setDeleteConfirm(true)
+            }}
           >
             <Trash2 size={15} />
           </button>
@@ -122,11 +138,7 @@ export function EventDetailPage() {
         {/* Image */}
         {event.imageUrl && (
           <div className="card p-0 overflow-hidden aspect-video">
-            <img
-              src={event.imageUrl}
-              alt={event.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={event.imageUrl} alt={event.name} className="w-full h-full object-cover" />
           </div>
         )}
       </div>
@@ -143,7 +155,9 @@ export function EventDetailPage() {
       {/* Edit modal */}
       <EventFormModal
         open={editOpen}
-        onClose={() => { setEditOpen(false) }}
+        onClose={() => {
+          setEditOpen(false)
+        }}
         mode="edit"
         eventId={event.id}
         initialData={{
@@ -166,19 +180,23 @@ export function EventDetailPage() {
             <h3 className="font-semibold text-zinc-100 mb-2">¿Eliminar evento?</h3>
             <p className="text-zinc-400 text-sm mb-5">
               Esta acción no se puede deshacer. Se eliminará{' '}
-              <span className="text-zinc-100 font-medium">{event.name}</span> junto con todos
-              sus pagos.
+              <span className="text-zinc-100 font-medium">{event.name}</span> junto con todos sus
+              pagos.
             </p>
             <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button
                 className="btn-secondary flex-1 justify-center"
-                onClick={() => { setDeleteConfirm(false) }}
+                onClick={() => {
+                  setDeleteConfirm(false)
+                }}
               >
                 Cancelar
               </button>
               <button
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
-                onClick={() => { void handleDelete() }}
+                onClick={() => {
+                  void handleDelete()
+                }}
                 disabled={deleteEvent.isPending}
               >
                 {deleteEvent.isPending ? 'Eliminando...' : 'Eliminar'}

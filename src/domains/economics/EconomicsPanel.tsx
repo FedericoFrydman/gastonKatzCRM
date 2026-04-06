@@ -26,7 +26,7 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
   const { data: payments = [] } = usePayments(eventId)
   const [editTotal, setEditTotal] = useState(false)
   const [addPayment, setAddPayment] = useState(false)
-  const [editPayment, setEditPayment] = useState<{ id: string } & PaymentFormData | null>(null)
+  const [editPayment, setEditPayment] = useState<({ id: string } & PaymentFormData) | null>(null)
 
   return (
     <div className="space-y-5">
@@ -39,7 +39,9 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
           action={
             <button
               className="btn-ghost text-xs p-1"
-              onClick={() => { setEditTotal(true) }}
+              onClick={() => {
+                setEditTotal(true)
+              }}
               title="Editar monto total"
             >
               <Pencil size={12} />
@@ -55,7 +57,11 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
           label="Saldo"
           value={summary?.balance != null ? formatCurrency(summary.balance) : '—'}
           accent={summary?.balance ? 'amber' : 'green'}
-          sub={summary?.paymentStatus ? <PaymentStatusBadge status={summary.paymentStatus} /> : undefined}
+          sub={
+            summary?.paymentStatus ? (
+              <PaymentStatusBadge status={summary.paymentStatus} />
+            ) : undefined
+          }
         />
       </div>
 
@@ -65,7 +71,12 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
           <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Pagos ({payments.length})
           </h3>
-          <button className="btn-secondary text-xs px-3 py-1.5 w-full sm:w-auto justify-center" onClick={() => { setAddPayment(true) }}>
+          <button
+            className="btn-secondary text-xs px-3 py-1.5 w-full sm:w-auto justify-center"
+            onClick={() => {
+              setAddPayment(true)
+            }}
+          >
             <Plus size={14} />
             Registrar pago
           </button>
@@ -134,20 +145,26 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
       {/* Modals */}
       <EditTotalModal
         open={editTotal}
-        onClose={() => { setEditTotal(false) }}
+        onClose={() => {
+          setEditTotal(false)
+        }}
         eventId={eventId}
         current={financials?.totalAmount}
       />
       <PaymentFormModal
         open={addPayment}
-        onClose={() => { setAddPayment(false) }}
+        onClose={() => {
+          setAddPayment(false)
+        }}
         eventId={eventId}
         mode="create"
       />
       {editPayment && (
         <PaymentFormModal
           open={!!editPayment}
-          onClose={() => { setEditPayment(null) }}
+          onClose={() => {
+            setEditPayment(null)
+          }}
           eventId={eventId}
           mode="edit"
           paymentId={editPayment.id}
@@ -205,7 +222,11 @@ function EditTotalModal({
   current?: number
 }) {
   const upsert = useUpsertFinancials(eventId)
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FinancialsFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FinancialsFormData>({
     resolver: zodResolver(financialsSchema),
     defaultValues: { totalAmount: current },
   })
@@ -217,7 +238,12 @@ function EditTotalModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Monto total del evento" size="sm">
-      <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-4"
+      >
         <div>
           <label className="label-base">Monto pactado (ARS) *</label>
           <input
@@ -235,7 +261,11 @@ function EditTotalModal({
           <button type="button" className="btn-secondary flex-1 justify-center" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn-primary flex-1 justify-center" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="btn-primary flex-1 justify-center"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
@@ -264,7 +294,11 @@ function PaymentFormModal({
   const createPayment = useCreatePayment(eventId)
   const updatePayment = useUpdatePayment(eventId)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PaymentFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
       type: 'partial',
@@ -289,7 +323,12 @@ function PaymentFormModal({
       title={mode === 'create' ? 'Registrar pago' : 'Editar pago'}
       size="sm"
     >
-      <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-4"
+      >
         <div>
           <label className="label-base">Monto (ARS) *</label>
           <input
@@ -306,7 +345,9 @@ function PaymentFormModal({
           <label className="label-base">Tipo de pago *</label>
           <select {...register('type')} className="input-base">
             {(Object.entries(PAYMENT_TYPE_LABELS) as [PaymentType, string][]).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
+              <option key={k} value={k}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
@@ -332,7 +373,11 @@ function PaymentFormModal({
           <button type="button" className="btn-secondary flex-1 justify-center" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn-primary flex-1 justify-center" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="btn-primary flex-1 justify-center"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Guardando...' : mode === 'create' ? 'Registrar' : 'Guardar'}
           </button>
         </div>
@@ -348,7 +393,9 @@ function DeletePaymentButton({ paymentId, eventId }: { paymentId: string; eventI
   return (
     <button
       className="btn-ghost p-1.5 hover:text-red-400"
-      onClick={() => { void del.mutateAsync(paymentId) }}
+      onClick={() => {
+        void del.mutateAsync(paymentId)
+      }}
       disabled={del.isPending}
       aria-label="Eliminar pago"
     >

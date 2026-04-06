@@ -22,13 +22,7 @@ interface EventFormModalProps {
   eventId?: string
 }
 
-export function EventFormModal({
-  open,
-  onClose,
-  mode,
-  initialData,
-  eventId,
-}: EventFormModalProps) {
+export function EventFormModal({ open, onClose, mode, initialData, eventId }: EventFormModalProps) {
   const create = useCreateEvent()
   const update = useUpdateEvent()
   const [imageFile, setImageFile] = useState<File | undefined>(undefined)
@@ -95,7 +89,12 @@ export function EventFormModal({
       title={mode === 'create' ? 'Nuevo evento' : 'Editar evento'}
       size="lg"
     >
-      <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-4"
+      >
         {submitError && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
             {submitError}
@@ -105,11 +104,7 @@ export function EventFormModal({
         {/* Name */}
         <div>
           <label className="label-base">Nombre del evento *</label>
-          <input
-            {...register('name')}
-            className="input-base"
-            placeholder="Ej: Cumpleaños de Ana"
-          />
+          <input {...register('name')} className="input-base" placeholder="Ej: Cumpleaños de Ana" />
           {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
         </div>
 
@@ -236,11 +231,7 @@ export function EventFormModal({
             className="btn-primary flex-1 justify-center"
             disabled={isSubmitting}
           >
-            {isSubmitting
-              ? 'Guardando...'
-              : mode === 'create'
-                ? 'Crear evento'
-                : 'Guardar cambios'}
+            {isSubmitting ? 'Guardando...' : mode === 'create' ? 'Crear evento' : 'Guardar cambios'}
           </button>
         </div>
       </form>

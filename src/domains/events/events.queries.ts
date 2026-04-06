@@ -41,7 +41,9 @@ function getEventImagePath(imageReference: string | null): string | null {
 
   try {
     const parsedUrl = new URL(imageReference)
-    const match = parsedUrl.pathname.match(/\/storage\/v1\/object\/(?:public|sign|authenticated)\/event-images\/(.+)$/)
+    const match = parsedUrl.pathname.match(
+      /\/storage\/v1\/object\/(?:public|sign|authenticated)\/event-images\/(.+)$/,
+    )
 
     if (!match) return null
 

@@ -187,7 +187,9 @@ export function CalendarPage() {
                         currentMonth={currentMonth}
                         events={dayEvents}
                         isSelected={selectedDay ? isSameDay(day, selectedDay) : false}
-                        onClick={() => { setSelectedDay(day) }}
+                        onClick={() => {
+                          setSelectedDay(day)
+                        }}
                       />
                     )
                   })}
@@ -315,15 +317,9 @@ function DayCell({
       {/* Event dots / labels */}
       <div className="flex flex-col gap-0.5 w-full min-h-0">
         {events.slice(0, 3).map((evt) => (
-          <div
-            key={evt.id}
-            className="flex items-center gap-1 w-full"
-          >
+          <div key={evt.id} className="flex items-center gap-1 w-full">
             <span
-              className={cn(
-                'w-1.5 h-1.5 rounded-full shrink-0',
-                STATUS_DOT_COLORS[evt.status],
-              )}
+              className={cn('w-1.5 h-1.5 rounded-full shrink-0', STATUS_DOT_COLORS[evt.status])}
             />
             <span className="text-zinc-300 text-[10px] leading-tight truncate hidden md:block">
               {evt.name}
@@ -366,16 +362,16 @@ function EventCard({
 
       <button
         type="button"
-        onClick={() => { onOpenEvent(event.id) }}
+        onClick={() => {
+          onOpenEvent(event.id)
+        }}
         className="w-full text-left"
       >
         <p className="font-medium text-zinc-100 text-sm leading-tight pr-5">{event.name}</p>
         <div className="flex items-center gap-1.5 mt-1.5">
           <EventStatusBadge status={event.status} />
         </div>
-        {event.place && (
-          <p className="text-zinc-500 text-xs truncate mt-1">{event.place.name}</p>
-        )}
+        {event.place && <p className="text-zinc-500 text-xs truncate mt-1">{event.place.name}</p>}
         <p className="text-zinc-600 text-xs mt-0.5">{formatTime(event.startTime)}</p>
       </button>
     </div>

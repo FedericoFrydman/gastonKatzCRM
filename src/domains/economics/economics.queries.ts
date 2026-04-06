@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabase'
-import type { EventPayment, EventFinancials, EventPaymentSummary, PaymentFormData, FinancialsFormData } from '@/lib/types'
+import type {
+  EventPayment,
+  EventFinancials,
+  EventPaymentSummary,
+  PaymentFormData,
+  FinancialsFormData,
+} from '@/lib/types'
 import type { Database } from '@/lib/database.types'
 
 type PaymentRow = Database['public']['Tables']['event_payments']['Row']
@@ -73,7 +79,10 @@ export async function fetchPaymentSummary(eventId: string): Promise<EventPayment
   return mapSummary(data)
 }
 
-export async function upsertFinancials(eventId: string, input: FinancialsFormData): Promise<EventFinancials> {
+export async function upsertFinancials(
+  eventId: string,
+  input: FinancialsFormData,
+): Promise<EventFinancials> {
   const { data, error } = await supabase
     .from('event_financials')
     .upsert(
@@ -91,7 +100,10 @@ export async function upsertFinancials(eventId: string, input: FinancialsFormDat
   return mapFinancials(data)
 }
 
-export async function createPayment(eventId: string, input: PaymentFormData): Promise<EventPayment> {
+export async function createPayment(
+  eventId: string,
+  input: PaymentFormData,
+): Promise<EventPayment> {
   const { data, error } = await supabase
     .from('event_payments')
     .insert({
@@ -108,7 +120,10 @@ export async function createPayment(eventId: string, input: PaymentFormData): Pr
   return mapPayment(data)
 }
 
-export async function updatePayment(id: string, input: Partial<PaymentFormData>): Promise<EventPayment> {
+export async function updatePayment(
+  id: string,
+  input: Partial<PaymentFormData>,
+): Promise<EventPayment> {
   const { data, error } = await supabase
     .from('event_payments')
     .update({

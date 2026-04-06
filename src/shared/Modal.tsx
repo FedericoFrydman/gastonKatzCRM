@@ -24,7 +24,9 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKey)
-    return () => { window.removeEventListener('keydown', onKey) }
+    return () => {
+      window.removeEventListener('keydown', onKey)
+    }
   }, [onClose])
 
   if (typeof document === 'undefined') return null
@@ -52,23 +54,20 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
               {/* Header */}
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-surface-border">
                 <h2 className="font-semibold text-zinc-100 text-base">{title}</h2>
-                <button
-                  onClick={onClose}
-                  className="btn-ghost p-1 -mr-1"
-                  aria-label="Cerrar"
-                >
+                <button onClick={onClose} className="btn-ghost p-1 -mr-1" aria-label="Cerrar">
                   <X size={18} />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto max-h-[calc(min(90vh,48rem)-4.5rem)]">{children}</div>
+              <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto max-h-[calc(min(90vh,48rem)-4.5rem)]">
+                {children}
+              </div>
             </motion.div>
           </div>
         </>
       )}
-    </AnimatePresence>
-    ,
+    </AnimatePresence>,
     document.body,
   )
 }

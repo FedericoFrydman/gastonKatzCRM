@@ -67,19 +67,29 @@ export function EventsDashboard() {
         <div>
           <h1 className="text-xl font-bold text-zinc-100">Eventos</h1>
           <p className="text-zinc-500 text-sm mt-0.5">
-            Página {page} {(events?.length ?? 0) > 0 ? '(mostrando hasta ' + String(pageSize) + ' por página)' : '(vacío)'}
+            Página {page}{' '}
+            {(events?.length ?? 0) > 0
+              ? '(mostrando hasta ' + String(pageSize) + ' por página)'
+              : '(vacío)'}
           </p>
         </div>
         <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
           <button
             className="btn-secondary w-full sm:w-auto justify-center"
-            onClick={() => { void handleExport() }}
+            onClick={() => {
+              void handleExport()
+            }}
             disabled={exporting || isLoading}
           >
             <Download size={16} />
             {exporting ? 'Exportando...' : 'Exportar Excel'}
           </button>
-          <button className="btn-primary w-full sm:w-auto justify-center" onClick={() => { setCreateOpen(true) }}>
+          <button
+            className="btn-primary w-full sm:w-auto justify-center"
+            onClick={() => {
+              setCreateOpen(true)
+            }}
+          >
             <Plus size={16} />
             Nuevo evento
           </button>
@@ -94,10 +104,12 @@ export function EventsDashboard() {
             className="input-base pl-9"
             placeholder="Buscar por nombre..."
             value={filters.search ?? ''}
-            onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value, page: 1 })) }}
+            onChange={(e) => {
+              setFilters((f) => ({ ...f, search: e.target.value, page: 1 }))
+            }}
           />
         </div>
-        
+
         <select
           className="input-base sm:w-auto"
           value={filters.sortBy ?? 'date'}
@@ -111,8 +123,14 @@ export function EventsDashboard() {
         </select>
 
         <button
-          className={showFilters ? 'btn-secondary justify-center' : 'btn-ghost border border-surface-border justify-center'}
-          onClick={() => { setShowFilters(!showFilters) }}
+          className={
+            showFilters
+              ? 'btn-secondary justify-center'
+              : 'btn-ghost border border-surface-border justify-center'
+          }
+          onClick={() => {
+            setShowFilters(!showFilters)
+          }}
         >
           <SlidersHorizontal size={15} />
           Filtros
@@ -141,13 +159,11 @@ export function EventsDashboard() {
               }}
             >
               <option value="">Todos</option>
-              {(Object.entries(EVENT_STATUS_LABELS) as [EventStatus, string][]).map(
-                ([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ),
-              )}
+              {(Object.entries(EVENT_STATUS_LABELS) as [EventStatus, string][]).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -156,7 +172,9 @@ export function EventsDashboard() {
             <select
               className="input-base"
               value={filters.placeId ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, placeId: e.target.value, page: 1 })) }}
+              onChange={(e) => {
+                setFilters((f) => ({ ...f, placeId: e.target.value, page: 1 }))
+              }}
             >
               <option value="">Todos</option>
               {places?.map((p) => (
@@ -173,7 +191,9 @@ export function EventsDashboard() {
               type="date"
               className="input-base"
               value={filters.dateFrom ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, dateFrom: e.target.value, page: 1 })) }}
+              onChange={(e) => {
+                setFilters((f) => ({ ...f, dateFrom: e.target.value, page: 1 }))
+              }}
             />
           </div>
 
@@ -183,13 +203,17 @@ export function EventsDashboard() {
               type="date"
               className="input-base"
               value={filters.dateTo ?? ''}
-              onChange={(e) => { setFilters((f) => ({ ...f, dateTo: e.target.value, page: 1 })) }}
+              onChange={(e) => {
+                setFilters((f) => ({ ...f, dateTo: e.target.value, page: 1 }))
+              }}
             />
           </div>
 
           <button
             className="btn-ghost text-xs sm:col-span-2 xl:col-span-4 justify-start"
-            onClick={() => { setFilters({ page: 1, pageSize: 20, sortBy: 'date' }) }}
+            onClick={() => {
+              setFilters({ page: 1, pageSize: 20, sortBy: 'date' })
+            }}
           >
             Limpiar filtros
           </button>
@@ -248,74 +272,76 @@ export function EventsDashboard() {
           </div>
 
           <div className="hidden md:block card p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-surface-border text-zinc-500 text-xs uppercase tracking-wider">
-                <th className="text-left px-4 py-3 font-medium">Evento</th>
-                <th className="text-left px-4 py-3 font-medium">Fecha</th>
-                <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Lugar</th>
-                <th className="text-left px-4 py-3 font-medium">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((event, i) => (
-                <motion.tr
-                  key={event.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="border-b border-surface-border last:border-0 hover:bg-surface-hover/60 transition-colors"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/events/${event.id}`}
-                      className="font-medium text-zinc-100 hover:text-brand-400 transition-colors"
-                    >
-                      {event.name}
-                    </Link>
-                    {event.includesLightingBudget && (
-                      <span className="ml-2 text-xs text-zinc-500">💡 iluminación</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
-                    <div>{formatDate(event.date, 'dd/MM/yyyy')}</div>
-                    <div className="text-xs text-zinc-600">{formatTime(event.startTime)}</div>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-400 hidden md:table-cell">
-                    {event.place ? (
-                      <div className="flex items-center gap-1.5">
-                        <MapPin size={12} className="text-zinc-600 shrink-0" />
-                        <span className="truncate max-w-[160px]">{event.place.name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-zinc-600">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <EventStatusMenu eventId={event.id} currentStatus={event.status} />
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-surface-border text-zinc-500 text-xs uppercase tracking-wider">
+                  <th className="text-left px-4 py-3 font-medium">Evento</th>
+                  <th className="text-left px-4 py-3 font-medium">Fecha</th>
+                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Lugar</th>
+                  <th className="text-left px-4 py-3 font-medium">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map((event, i) => (
+                  <motion.tr
+                    key={event.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="border-b border-surface-border last:border-0 hover:bg-surface-hover/60 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/events/${event.id}`}
+                        className="font-medium text-zinc-100 hover:text-brand-400 transition-colors"
+                      >
+                        {event.name}
+                      </Link>
+                      {event.includesLightingBudget && (
+                        <span className="ml-2 text-xs text-zinc-500">💡 iluminación</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
+                      <div>{formatDate(event.date, 'dd/MM/yyyy')}</div>
+                      <div className="text-xs text-zinc-600">{formatTime(event.startTime)}</div>
+                    </td>
+                    <td className="px-4 py-3 text-zinc-400 hidden md:table-cell">
+                      {event.place ? (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin size={12} className="text-zinc-600 shrink-0" />
+                          <span className="truncate max-w-[160px]">{event.place.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-zinc-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <EventStatusMenu eventId={event.id} currentStatus={event.status} />
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination controls */}
           <div className="mt-3 px-1 md:px-4 py-3 border-t border-surface-border flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-zinc-500">
-            <div>
-              Página {page}
-            </div>
+            <div>Página {page}</div>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 className="btn-ghost text-xs flex-1 sm:flex-none justify-center"
-                onClick={() => { setFilters((f) => ({ ...f, page: Math.max(1, (f.page ?? 1) - 1) })) }}
+                onClick={() => {
+                  setFilters((f) => ({ ...f, page: Math.max(1, (f.page ?? 1) - 1) }))
+                }}
                 disabled={page === 1}
               >
                 ← Anterior
               </button>
               <button
                 className="btn-ghost text-xs flex-1 sm:flex-none justify-center"
-                onClick={() => { setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 })) }}
+                onClick={() => {
+                  setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))
+                }}
                 disabled={events.length < pageSize}
               >
                 Siguiente →
@@ -327,7 +353,9 @@ export function EventsDashboard() {
 
       <EventFormModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false) }}
+        onClose={() => {
+          setCreateOpen(false)
+        }}
         mode="create"
       />
     </div>

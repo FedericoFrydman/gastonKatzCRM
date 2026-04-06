@@ -66,14 +66,19 @@ function AnimatedNumber({
     }
 
     raf.current = requestAnimationFrame(step)
-    return () => { if (raf.current !== null) cancelAnimationFrame(raf.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (raf.current !== null) cancelAnimationFrame(raf.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   const formatted =
     decimals === 0
       ? Math.round(display).toLocaleString('es-AR')
-      : display.toLocaleString('es-AR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+      : display.toLocaleString('es-AR', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })
 
   return (
     <span>
@@ -159,14 +164,17 @@ function Sparkline({ data }: { data: number[] }) {
     return { x, y }
   })
 
-  const d =
-    'M ' +
-    points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')
+  const d = 'M ' + points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')
 
   const area = d + ` L ${String(W)},${String(H)} L 0,${String(H)} Z`
 
   return (
-    <svg viewBox={`0 0 ${String(W)} ${String(H)}`} preserveAspectRatio="none" className="w-full h-full" aria-hidden>
+    <svg
+      viewBox={`0 0 ${String(W)} ${String(H)}`}
+      preserveAspectRatio="none"
+      className="w-full h-full"
+      aria-hidden
+    >
       <defs>
         <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#3d5af1" stopOpacity="0.3" />
@@ -422,7 +430,6 @@ export function AnalyticsPage() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
         {/* Events per month */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -491,9 +498,7 @@ export function AnalyticsPage() {
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: STATUS_COLORS[status] ?? '#64748b' }}
                   />
-                  <span className="text-xs text-zinc-400">
-                    {EVENT_STATUS_LABELS[status]}
-                  </span>
+                  <span className="text-xs text-zinc-400">{EVENT_STATUS_LABELS[status]}</span>
                 </div>
                 <p className="text-xl font-display font-bold text-zinc-100 tabular-nums">
                   {count}
@@ -540,7 +545,9 @@ export function AnalyticsPage() {
         >
           <AlertCircle size={16} className="shrink-0" />
           <p className="text-sm">
-            <span className="font-semibold">{unpaidCount} evento{unpaidCount !== 1 ? 's' : ''}</span>{' '}
+            <span className="font-semibold">
+              {unpaidCount} evento{unpaidCount !== 1 ? 's' : ''}
+            </span>{' '}
             sin pagos registrados. Revisá los presupuestos pendientes.
           </p>
         </motion.div>

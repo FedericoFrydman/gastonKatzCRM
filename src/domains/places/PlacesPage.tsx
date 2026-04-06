@@ -2,7 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
-import { Check, ChevronDown, ChevronRight, MapPin, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  MapPin,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { usePlaces, useCreatePlace, useUpdatePlace, useDeletePlace } from './places.hooks'
 import { Modal } from '@/shared/Modal'
 import type { Place, PlaceFormData } from '@/lib/types'
@@ -12,7 +22,7 @@ import { placeSchema } from '@/lib/validations'
 export function PlacesPage() {
   const { data: places, isLoading } = usePlaces()
   const [createOpen, setCreateOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<{ id: string } & PlaceFormData | null>(null)
+  const [editTarget, setEditTarget] = useState<({ id: string } & PlaceFormData) | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   if (isLoading) {
@@ -29,11 +39,14 @@ export function PlacesPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-zinc-100">Lugares</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">
-            {places?.length ?? 0} lugares registrados
-          </p>
+          <p className="text-zinc-500 text-sm mt-0.5">{places?.length ?? 0} lugares registrados</p>
         </div>
-        <button className="btn-primary w-full sm:w-auto justify-center" onClick={() => { setCreateOpen(true) }}>
+        <button
+          className="btn-primary w-full sm:w-auto justify-center"
+          onClick={() => {
+            setCreateOpen(true)
+          }}
+        >
           <Plus size={16} />
           Nuevo lugar
         </button>
@@ -88,7 +101,9 @@ export function PlacesPage() {
                 </button>
                 <button
                   className="btn-ghost p-1.5 hover:text-red-400"
-                  onClick={() => { setDeleteTarget({ id: place.id, name: place.name }) }}
+                  onClick={() => {
+                    setDeleteTarget({ id: place.id, name: place.name })
+                  }}
                   aria-label="Eliminar"
                 >
                   <Trash2 size={14} />
@@ -103,13 +118,17 @@ export function PlacesPage() {
       {/* Modals */}
       <PlaceFormModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false) }}
+        onClose={() => {
+          setCreateOpen(false)
+        }}
         mode="create"
       />
       {editTarget && (
         <PlaceFormModal
           open={!!editTarget}
-          onClose={() => { setEditTarget(null) }}
+          onClose={() => {
+            setEditTarget(null)
+          }}
           mode="edit"
           initialData={editTarget}
           placeId={editTarget.id}
@@ -118,7 +137,9 @@ export function PlacesPage() {
       {deleteTarget && (
         <DeletePlaceModal
           open={!!deleteTarget}
-          onClose={() => { setDeleteTarget(null) }}
+          onClose={() => {
+            setDeleteTarget(null)
+          }}
           placeId={deleteTarget.id}
           placeName={deleteTarget.name}
         />
@@ -172,14 +193,15 @@ function PlaceFormModal({
       title={mode === 'create' ? 'Nuevo lugar' : 'Editar lugar'}
       size="sm"
     >
-      <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-4"
+      >
         <div>
           <label className="label-base">Nombre del lugar *</label>
-          <input
-            {...register('name')}
-            className="input-base"
-            placeholder="Ej: Salón Pilar"
-          />
+          <input {...register('name')} className="input-base" placeholder="Ej: Salón Pilar" />
           {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
         </div>
 
@@ -206,11 +228,7 @@ function PlaceFormModal({
         </div>
 
         <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
-          <button
-            type="button"
-            className="btn-secondary flex-1 justify-center"
-            onClick={onClose}
-          >
+          <button type="button" className="btn-secondary flex-1 justify-center" onClick={onClose}>
             Cancelar
           </button>
           <button
@@ -248,7 +266,8 @@ function DeletePlaceModal({
     <Modal open={open} onClose={onClose} title="Eliminar lugar" size="sm">
       <p className="text-zinc-300 text-sm mb-5">
         ¿Estás seguro de que querés eliminar{' '}
-        <span className="font-semibold text-zinc-100">{placeName}</span>? Esta acción no se puede deshacer.
+        <span className="font-semibold text-zinc-100">{placeName}</span>? Esta acción no se puede
+        deshacer.
       </p>
       <div className="flex flex-col-reverse sm:flex-row gap-2">
         <button className="btn-secondary flex-1 justify-center" onClick={onClose}>
@@ -256,7 +275,9 @@ function DeletePlaceModal({
         </button>
         <button
           className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
-          onClick={() => { void handleDelete() }}
+          onClick={() => {
+            void handleDelete()
+          }}
           disabled={deletePlace.isPending}
         >
           {deletePlace.isPending ? 'Eliminando...' : 'Eliminar'}
@@ -285,10 +306,7 @@ export function PlaceDropdown({
   const [query, setQuery] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const selectedPlace = useMemo(
-    () => places?.find((place) => place.id === value),
-    [places, value],
-  )
+  const selectedPlace = useMemo(() => places?.find((place) => place.id === value), [places, value])
 
   const filteredPlaces = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -350,12 +368,17 @@ export function PlaceDropdown({
           <div ref={containerRef} className="flex-1 min-w-0 relative">
             <label className="label-base">Lugar</label>
             <div className="relative">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+              <Search
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+              />
               <input
                 className="input-base pl-9 pr-20"
                 value={query}
                 placeholder="Buscar lugar..."
-                onFocus={() => { setOpen(true) }}
+                onFocus={() => {
+                  setOpen(true)
+                }}
                 onChange={(e) => {
                   setQuery(e.target.value)
                   setOpen(true)
@@ -386,7 +409,10 @@ export function PlaceDropdown({
                   }}
                   aria-label="Mostrar lugares"
                 >
-                  <ChevronDown size={14} className={cn('transition-transform', open && 'rotate-180')} />
+                  <ChevronDown
+                    size={14}
+                    className={cn('transition-transform', open && 'rotate-180')}
+                  />
                 </button>
               </div>
             </div>
@@ -397,7 +423,9 @@ export function PlaceDropdown({
                   type="button"
                   className={cn(
                     'w-full px-3 py-2.5 text-left text-sm transition-colors',
-                    !value ? 'bg-surface-hover text-zinc-100' : 'text-zinc-300 hover:bg-surface-hover',
+                    !value
+                      ? 'bg-surface-hover text-zinc-100'
+                      : 'text-zinc-300 hover:bg-surface-hover',
                   )}
                   onClick={clearSelection}
                 >
@@ -414,25 +442,35 @@ export function PlaceDropdown({
                           type="button"
                           className={cn(
                             'w-full px-3 py-2.5 text-left text-sm transition-colors',
-                            isSelected ? 'bg-brand-500/10 text-zinc-100' : 'text-zinc-300 hover:bg-surface-hover',
+                            isSelected
+                              ? 'bg-brand-500/10 text-zinc-100'
+                              : 'text-zinc-300 hover:bg-surface-hover',
                           )}
-                          onClick={() => { handleSelectPlace(place) }}
+                          onClick={() => {
+                            handleSelectPlace(place)
+                          }}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <div className="font-medium truncate">{place.name}</div>
                               <div className="text-xs text-zinc-500 truncate">{place.address}</div>
                               {place.clarification && (
-                                <div className="text-xs text-zinc-600 truncate">{place.clarification}</div>
+                                <div className="text-xs text-zinc-600 truncate">
+                                  {place.clarification}
+                                </div>
                               )}
                             </div>
-                            {isSelected && <Check size={14} className="mt-0.5 shrink-0 text-brand-400" />}
+                            {isSelected && (
+                              <Check size={14} className="mt-0.5 shrink-0 text-brand-400" />
+                            )}
                           </div>
                         </button>
                       )
                     })
                   ) : (
-                    <div className="px-3 py-3 text-sm text-zinc-500">No hay lugares que coincidan.</div>
+                    <div className="px-3 py-3 text-sm text-zinc-500">
+                      No hay lugares que coincidan.
+                    </div>
                   )}
                 </div>
               </div>
@@ -442,7 +480,9 @@ export function PlaceDropdown({
             <button
               type="button"
               className="btn-secondary px-3 py-2 shrink-0 justify-center"
-              onClick={() => { setQuickCreateOpen(true) }}
+              onClick={() => {
+                setQuickCreateOpen(true)
+              }}
               title="Crear nuevo lugar"
             >
               <Plus size={16} />
@@ -454,7 +494,9 @@ export function PlaceDropdown({
 
       <PlaceFormModal
         open={quickCreateOpen}
-        onClose={() => { setQuickCreateOpen(false) }}
+        onClose={() => {
+          setQuickCreateOpen(false)
+        }}
         mode="create"
       />
     </>

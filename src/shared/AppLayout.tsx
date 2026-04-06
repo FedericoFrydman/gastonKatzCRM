@@ -1,13 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  LayoutDashboard,
-  CalendarDays,
-  MapPin,
-  LogOut,
-  Menu,
-  X,
-} from 'lucide-react'
+import { LayoutDashboard, CalendarDays, MapPin, LogOut, Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/domains/auth/useAuth'
 
@@ -30,7 +23,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-surface flex overflow-x-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 border-r border-surface-border bg-surface-secondary shrink-0">
-        <SidebarContent user={user?.email} onSignOut={() => { void signOut() }} />
+        <SidebarContent
+          user={user?.email}
+          onSignOut={() => {
+            void signOut()
+          }}
+        />
       </aside>
 
       {/* Mobile overlay */}
@@ -42,7 +40,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 z-30 md:hidden"
-              onClick={() => { setMobileOpen(false) }}
+              onClick={() => {
+                setMobileOpen(false)
+              }}
             />
             <motion.aside
               initial={{ x: -224 }}
@@ -51,7 +51,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               transition={{ type: 'spring', stiffness: 400, damping: 40 }}
               className="fixed left-0 inset-y-0 w-56 z-40 flex flex-col border-r border-surface-border bg-surface-secondary"
             >
-              <SidebarContent user={user?.email} onSignOut={() => { void signOut() }} />
+              <SidebarContent
+                user={user?.email}
+                onSignOut={() => {
+                  void signOut()
+                }}
+              />
             </motion.aside>
           </>
         )}
@@ -68,7 +73,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="font-semibold text-zinc-100 text-sm">GastonKatz CRM</span>
           </div>
           <button
-            onClick={() => { setMobileOpen(!mobileOpen) }}
+            onClick={() => {
+              setMobileOpen(!mobileOpen)
+            }}
             className="btn-ghost p-1.5"
             aria-label="Toggle menu"
           >
@@ -82,13 +89,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function SidebarContent({
-  user,
-  onSignOut,
-}: {
-  user?: string
-  onSignOut: () => void
-}) {
+function SidebarContent({ user, onSignOut }: { user?: string; onSignOut: () => void }) {
   return (
     <>
       {/* Brand */}
