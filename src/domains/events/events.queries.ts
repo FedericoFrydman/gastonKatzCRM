@@ -1,3 +1,4 @@
+import { addYears, format, isValid, parseISO } from 'date-fns'
 import { supabase } from '@/lib/supabase'
 import type { Event, EventFilters, EventFormData } from '@/lib/types'
 import type { Database } from '@/lib/database.types'
@@ -51,12 +52,26 @@ function mapEvent(row: EventRow & { places?: Database['public']['Tables']['place
   }
 }
 
-export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
-  const pageSize = filters?.pageSize ?? 20
-  const page = filters?.page ?? 1
-  const offset = (page - 1) * pageSize
+function getExportDateTo(filters?: EventFilters): string | undefined {
+  if (!filters?.dateFrom) return filters?.dateTo
 
-  // Determine sort order
+  const parsedDateFrom = parseISO(filters.dateFrom)
+  if (!isValid(parsedDateFrom)) return filters?.dateTo
+
+  const oneYearWindow = format(addYears(parsedDateFrom, 1), 'yyyy-MM-dd')
+
+  if (!filters.dateTo) {
+    return oneYearWindow
+  }
+
+  return filters.dateTo < oneYearWindow ? filters.dateTo : oneYearWindow
+}
+
+function buildEventsQuery(filters?: EventFilters, options?: { applyExportWindow?: boolean }) {
+  let query = supabase
+    .from('events')
+    .select('*, places(*)')
+
   let orderKey: 'date' | 'status' | 'created_at' = 'date'
   let ascending = true
 
@@ -68,10 +83,7 @@ export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
     ascending = false
   }
 
-  let query = supabase
-    .from('events')
-    .select('*, places(*)')
-    .order(orderKey, { ascending })
+  query = query.order(orderKey, { ascending })
 
   if (filters?.search) {
     query = query.ilike('name', `%${filters.search}%`)
@@ -85,14 +97,33 @@ export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
   if (filters?.dateFrom) {
     query = query.gte('date', filters.dateFrom)
   }
-  if (filters?.dateTo) {
-    query = query.lte('date', filters.dateTo)
+
+  const effectiveDateTo = options?.applyExportWindow ? getExportDateTo(filters) : filters?.dateTo
+  if (effectiveDateTo) {
+    query = query.lte('date', effectiveDateTo)
   }
+
+  return query
+}
+
+export async function fetchEvents(filters?: EventFilters): Promise<Event[]> {
+  const pageSize = filters?.pageSize ?? 20
+  const page = filters?.page ?? 1
+  const offset = (page - 1) * pageSize
+
+  let query = buildEventsQuery(filters)
 
   // Apply pagination
   query = query.range(offset, offset + pageSize - 1)
 
   const { data, error } = await query
+  if (error) throw error
+  return data.map(mapEvent)
+}
+
+export async function fetchEventsForExport(filters?: EventFilters): Promise<Event[]> {
+  const { data, error } = await buildEventsQuery(filters, { applyExportWindow: true })
+
   if (error) throw error
   return data.map(mapEvent)
 }

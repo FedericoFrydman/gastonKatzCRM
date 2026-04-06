@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   fetchEvents,
+  fetchEventsForExport,
   fetchEvent,
   fetchEventsByMonth,
   createEvent,
@@ -21,6 +22,15 @@ export function useEvents(filters?: EventFilters) {
     queryKey: eventsKeys.list(filters),
     queryFn: () => fetchEvents(filters),
     staleTime: 1000 * 60 * 2,
+  })
+}
+
+export function useEventsForExport(filters?: EventFilters, enabled = false) {
+  return useQuery({
+    queryKey: ['events', 'export', filters],
+    queryFn: () => fetchEventsForExport(filters),
+    enabled,
+    staleTime: 0,
   })
 }
 

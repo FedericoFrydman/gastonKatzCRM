@@ -84,10 +84,10 @@ export function CalendarPage() {
   const rowCount = String(days.length / 7)
 
   return (
-    <div className="flex flex-col h-[calc(100vh-57px)] md:h-screen">
+    <div className="flex flex-col min-h-[calc(100dvh-57px)] md:min-h-screen">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-surface-border shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 md:px-6 py-3 border-b border-surface-border shrink-0">
+        <div className="flex items-center justify-between sm:justify-start gap-3">
           <button
             className="btn-ghost p-1.5 disabled:opacity-30"
             onClick={goToPrev}
@@ -103,7 +103,7 @@ export function CalendarPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: direction * -8 }}
               transition={{ duration: 0.2 }}
-              className="text-lg font-bold text-zinc-100 w-44 text-center capitalize"
+              className="text-base sm:text-lg font-bold text-zinc-100 w-auto sm:w-44 text-center capitalize flex-1 sm:flex-none"
             >
               {format(currentMonth, 'MMMM yyyy', { locale: es })}
             </motion.h1>
@@ -118,7 +118,7 @@ export function CalendarPage() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-end gap-2">
           {/* Legend */}
           <div className="hidden md:flex items-center gap-3 text-xs text-zinc-500 mr-2">
             <span className="flex items-center gap-1">
@@ -140,7 +140,7 @@ export function CalendarPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
         {/* Calendar grid */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Day-of-week headers */}
@@ -148,7 +148,7 @@ export function CalendarPage() {
             {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d) => (
               <div
                 key={d}
-                className="text-center text-xs font-medium text-zinc-500 py-2 uppercase tracking-wider"
+                className="text-center text-[10px] sm:text-xs font-medium text-zinc-500 py-2 uppercase tracking-wider"
               >
                 {d}
               </div>
@@ -163,7 +163,7 @@ export function CalendarPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: direction * -24 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
-              className="grid grid-cols-7 flex-1"
+              className="grid grid-cols-7 flex-1 min-h-[20rem] md:min-h-0"
               style={{ gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))` }}
             >
               {isLoading
@@ -239,7 +239,7 @@ export function CalendarPage() {
 
       {/* Mobile selected day list */}
       {selectedDay && (
-        <div className="md:hidden border-t border-surface-border bg-surface-secondary p-3 max-h-56 overflow-y-auto">
+        <div className="md:hidden border-t border-surface-border bg-surface-secondary p-3 max-h-64 overflow-y-auto">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
             {format(selectedDay, "EEEE d 'de' MMMM", { locale: es })}
           </p>
@@ -293,7 +293,7 @@ function DayCell({
     <button
       onClick={onClick}
       className={cn(
-        'relative flex flex-col items-start p-1.5 md:p-2 border-r border-b border-surface-border text-left transition-colors min-h-0',
+        'relative flex flex-col items-start p-1 md:p-2 border-r border-b border-surface-border text-left transition-colors min-h-0',
         inMonth ? '' : 'opacity-30',
         isSelected ? 'bg-brand-500/10' : 'hover:bg-surface-hover',
       )}
@@ -301,7 +301,7 @@ function DayCell({
       {/* Day number */}
       <span
         className={cn(
-          'inline-flex items-center justify-center w-6 h-6 text-xs font-medium rounded-full mb-1 shrink-0',
+          'inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-[10px] sm:text-xs font-medium rounded-full mb-1 shrink-0',
           today_
             ? 'bg-brand-500 text-white font-bold'
             : isSelected
@@ -330,8 +330,18 @@ function DayCell({
             </span>
           </div>
         ))}
+        {events.length > 0 && (
+          <div className="md:hidden flex flex-wrap gap-1 pt-0.5">
+            {events.slice(0, 3).map((evt) => (
+              <span
+                key={`${evt.id}-mobile`}
+                className={cn('w-1.5 h-1.5 rounded-full', STATUS_DOT_COLORS[evt.status])}
+              />
+            ))}
+          </div>
+        )}
         {events.length > 3 && (
-          <span className="text-zinc-500 text-[10px]">+{events.length - 3} más</span>
+          <span className="text-zinc-500 text-[9px] sm:text-[10px]">+{events.length - 3} más</span>
         )}
       </div>
     </button>

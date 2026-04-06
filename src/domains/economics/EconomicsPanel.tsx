@@ -31,7 +31,7 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-5">
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <SummaryCard
           label="Total pactado"
           value={financials ? formatCurrency(financials.totalAmount) : '—'}
@@ -61,11 +61,11 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
 
       {/* Payments list */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Pagos ({payments.length})
           </h3>
-          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setAddPayment(true) }}>
+          <button className="btn-secondary text-xs px-3 py-1.5 w-full sm:w-auto justify-center" onClick={() => { setAddPayment(true) }}>
             <Plus size={14} />
             Registrar pago
           </button>
@@ -84,7 +84,7 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
-                className="flex items-center gap-3 py-2.5 border-b border-surface-border last:border-0 group"
+                className="flex items-start sm:items-center gap-3 py-2.5 border-b border-surface-border last:border-0 group"
               >
                 <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center shrink-0">
                   <DollarSign size={14} className="text-brand-400" />
@@ -108,7 +108,7 @@ export function EconomicsPanel({ eventId }: { eventId: string }) {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity self-start sm:self-center">
                   <button
                     className="btn-ghost p-1.5"
                     onClick={() => {
@@ -231,7 +231,7 @@ function EditTotalModal({
             <p className="text-red-400 text-xs mt-1">{errors.totalAmount.message}</p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col-reverse sm:flex-row gap-2">
           <button type="button" className="btn-secondary flex-1 justify-center" onClick={onClose}>
             Cancelar
           </button>
@@ -328,7 +328,7 @@ function PaymentFormModal({
           />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col-reverse sm:flex-row gap-2">
           <button type="button" className="btn-secondary flex-1 justify-center" onClick={onClose}>
             Cancelar
           </button>

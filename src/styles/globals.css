@@ -13,8 +13,14 @@
     @apply scroll-smooth;
   }
 
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
   body {
-    @apply bg-surface text-zinc-100 antialiased font-sans;
+    @apply bg-surface text-zinc-100 antialiased font-sans overflow-x-hidden;
     background-color: #0f1117;
   }
 
@@ -61,7 +67,7 @@
   }
 
   .card {
-    @apply bg-surface-secondary border border-surface-border rounded-xl p-5;
+    @apply bg-surface-secondary border border-surface-border rounded-xl p-4 md:p-5;
   }
 
   .input-base {

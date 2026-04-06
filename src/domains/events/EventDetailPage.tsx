@@ -26,7 +26,7 @@ export function EventDetailPage() {
 
   if (!event) {
     return (
-      <div className="p-6 text-zinc-500 text-sm">Evento no encontrado.</div>
+      <div className="p-4 md:p-6 text-zinc-500 text-sm">Evento no encontrado.</div>
     )
   }
 
@@ -40,7 +40,7 @@ export function EventDetailPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="p-6 max-w-4xl mx-auto"
+      className="p-4 md:p-6 max-w-4xl mx-auto"
     >
       {/* Back */}
       <button
@@ -52,23 +52,23 @@ export function EventDetailPage() {
       </button>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-zinc-100">{event.name}</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-1">
+            <h1 className="text-2xl font-bold text-zinc-100 break-words">{event.name}</h1>
             <EventStatusBadge status={event.status} />
           </div>
           <p className="text-zinc-500 text-sm">
             Creado el {formatDate(event.createdAt, 'dd/MM/yyyy')}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="btn-secondary" onClick={() => { setEditOpen(true) }}>
+        <div className="flex w-full sm:w-auto items-center gap-2 shrink-0">
+          <button className="btn-secondary flex-1 sm:flex-none justify-center" onClick={() => { setEditOpen(true) }}>
             <Pencil size={15} />
             Editar
           </button>
           <button
-            className="btn-ghost hover:text-red-400"
+            className="btn-ghost border border-surface-border hover:text-red-400 justify-center"
             onClick={() => { setDeleteConfirm(true) }}
           >
             <Trash2 size={15} />
@@ -161,15 +161,15 @@ export function EventDetailPage() {
 
       {/* Delete confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-secondary border border-surface-border rounded-2xl p-6 max-w-sm w-full">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4">
+          <div className="bg-surface-secondary border border-surface-border rounded-2xl p-4 sm:p-6 max-w-sm w-full">
             <h3 className="font-semibold text-zinc-100 mb-2">¿Eliminar evento?</h3>
             <p className="text-zinc-400 text-sm mb-5">
               Esta acción no se puede deshacer. Se eliminará{' '}
               <span className="text-zinc-100 font-medium">{event.name}</span> junto con todos
               sus pagos.
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button
                 className="btn-secondary flex-1 justify-center"
                 onClick={() => { setDeleteConfirm(false) }}

@@ -27,7 +27,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, [location.pathname])
 
   return (
-    <div className="min-h-screen bg-surface flex">
+    <div className="min-h-screen bg-surface flex overflow-x-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 border-r border-surface-border bg-surface-secondary shrink-0">
         <SidebarContent user={user?.email} onSignOut={() => { void signOut() }} />
@@ -60,7 +60,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-surface-border bg-surface-secondary">
+        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-surface-border bg-surface-secondary/95 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center">
               <span className="text-white text-xs font-bold">G</span>
@@ -76,7 +76,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </header>
 
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">{children}</main>
       </div>
     </div>
   )

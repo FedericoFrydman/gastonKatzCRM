@@ -370,7 +370,7 @@ export function AnalyticsPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -385,7 +385,7 @@ export function AnalyticsPage() {
       </motion.div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           index={0}
           label="Eventos totales"
@@ -480,7 +480,7 @@ export function AnalyticsPage() {
 
         <ProportionBar counts={statusCounts} />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
           {(Object.keys(EVENT_STATUS_LABELS) as EventStatus[]).map((status) => {
             const count = statusCounts[status] ?? 0
             const pct = totalEvents > 0 ? Math.round((count / totalEvents) * 100) : 0

@@ -114,7 +114,7 @@ export function EventFormModal({
         </div>
 
         {/* Date + Times */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="label-base">Fecha *</label>
             <input type="date" {...register('date')} className="input-base" />
@@ -207,7 +207,7 @@ export function EventFormModal({
         </div>
 
         {/* Toggles */}
-        <div className="flex items-center gap-2 p-3 bg-surface rounded-lg border border-surface-border">
+        <div className="flex items-start gap-2 p-3 bg-surface rounded-lg border border-surface-border">
           <input
             type="checkbox"
             id="includesLightingBudget"
@@ -219,7 +219,7 @@ export function EventFormModal({
           </label>
         </div>
 
-        <div className="flex gap-2 pt-1">
+        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
           <button
             type="button"
             className="btn-secondary flex-1 justify-center"

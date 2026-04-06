@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { useUpdateEvent } from './events.hooks'
 import { EVENT_STATUS_LABELS } from '@/lib/types'
 import type { EventStatus } from '@/lib/database.types'
@@ -73,13 +74,55 @@ export function EventStatusMenu({
 }: EventStatusMenuProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
   const { mutate: updateEvent, isPending } = useUpdateEvent()
+
+  useEffect(() => {
+    if (!open || !triggerRef.current) return
+
+    const updatePosition = () => {
+      if (!triggerRef.current) return
+
+      const rect = triggerRef.current.getBoundingClientRect()
+      const menuWidth = 208
+      const viewportPadding = 12
+      const desiredLeft = rect.left
+      const desiredTop = rect.bottom + 8
+      const maxLeft = window.innerWidth - menuWidth - viewportPadding
+      const left = Math.max(viewportPadding, Math.min(desiredLeft, maxLeft))
+      const menuHeight = 196
+      const fitsBelow = desiredTop + menuHeight <= window.innerHeight - viewportPadding
+      const top = fitsBelow
+        ? desiredTop
+        : Math.max(viewportPadding, rect.top - menuHeight - 8)
+
+      setMenuPosition({ top, left })
+    }
+
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [open])
 
   // Close on outside click
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
+      ) {
         setOpen(false)
       }
     }
@@ -113,6 +156,7 @@ export function EventStatusMenu({
       {/* Trigger */}
       {variant === 'compact' ? (
         <button
+          ref={triggerRef}
           type="button"
           title={`Estado: ${EVENT_STATUS_LABELS[currentStatus]}`}
           onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
@@ -124,6 +168,7 @@ export function EventStatusMenu({
         />
       ) : (
         <button
+          ref={triggerRef}
           type="button"
           onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
           className={cn(
@@ -142,13 +187,15 @@ export function EventStatusMenu({
 
       {/* Dropdown */}
       <AnimatePresence>
-        {open && (
+        {open && typeof document !== 'undefined' && createPortal(
           <motion.div
+            ref={menuRef}
             variants={dropdownVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute z-50 mt-1 left-0 w-52 bg-surface border border-surface-border rounded-xl shadow-xl overflow-hidden"
+            style={{ top: menuPosition.top, left: menuPosition.left, position: 'fixed' }}
+            className="z-[70] w-52 bg-surface border border-surface-border rounded-xl shadow-xl overflow-hidden"
           >
             <div className="py-1">
               {ALL_STATUSES.map((status, i) => {
@@ -177,7 +224,8 @@ export function EventStatusMenu({
                 )
               })}
             </div>
-          </motion.div>
+          </motion.div>,
+          document.body,
         )}
       </AnimatePresence>
     </div>
