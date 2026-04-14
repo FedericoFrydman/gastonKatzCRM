@@ -231,7 +231,7 @@ export function EventsDashboard() {
       ) : !events?.length ? (
         <div className="card text-center py-16 text-zinc-500">
           <CalendarDays size={36} className="mx-auto mb-3 opacity-40" />
-          <p className="text-sm">No hay eventos que coincidan con los filtros actuales.</p>
+          <p className="text-sm">No hay eventos que coincidan con los filtros seleccionados.</p>
         </div>
       ) : (
         <>
