@@ -20,7 +20,7 @@ export const eventSchema = z.object({
   whatsapp: z
     .string()
     .trim()
-    .regex(/^[+\d\s()\-]{7,20}$/, 'WhatsApp inválido')
+    .regex(/^[+\d\s()-]{7,20}$/, 'WhatsApp inválido')
     .optional()
     .or(z.literal('')),
   email: z.string().email('Email inválido').optional().or(z.literal('')),

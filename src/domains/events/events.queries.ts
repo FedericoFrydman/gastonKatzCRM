@@ -105,7 +105,7 @@ function getExportDateTo(filters?: EventFilters): string | undefined {
   if (!filters?.dateFrom) return filters?.dateTo
 
   const parsedDateFrom = parseISO(filters.dateFrom)
-  if (!isValid(parsedDateFrom)) return filters?.dateTo
+  if (!isValid(parsedDateFrom)) return filters.dateTo
 
   const oneYearWindow = format(addYears(parsedDateFrom, 1), 'yyyy-MM-dd')
 

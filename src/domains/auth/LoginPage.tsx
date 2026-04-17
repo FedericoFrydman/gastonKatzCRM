@@ -27,11 +27,26 @@ export function LoginPage() {
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const redirectTo = location.state?.from?.pathname ?? '/dashboard'
+  const redirectTo = (() => {
+    const state: unknown = location.state
+
+    if (state && typeof state === 'object' && 'from' in state) {
+      const from = (state as { from?: unknown }).from
+
+      if (from && typeof from === 'object' && 'pathname' in from) {
+        const pathname = (from as { pathname?: unknown }).pathname
+        if (typeof pathname === 'string') {
+          return pathname
+        }
+      }
+    }
+
+    return '/dashboard'
+  })()
 
   useEffect(() => {
     if (!authLoading && user) {
-      navigate(redirectTo, { replace: true })
+      void navigate(redirectTo, { replace: true })
     }
   }, [authLoading, navigate, redirectTo, user])
 

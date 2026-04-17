@@ -49,12 +49,13 @@ Test results do NOT block deployment (informational only for MVP). Future: add r
 
 Tests use the production Supabase instance by default:
 - **Base URL**: `http://localhost:5173` (dev server) or `E2E_BASE_URL` env var
-- **Database**: Creates test users with timestamp-based emails (`smoke-test-{timestamp}@test.gastonkatz.com`)
+- **Database**: Tries to create test users with timestamp-based emails (`smoke-test-{timestamp}@gmail.com`)
+- **Optional fallback auth**: set `E2E_USER_EMAIL` and `E2E_USER_PASSWORD` to bypass signup when Supabase rate-limits new users
 
 ## Notes
 
-- Tests create **real users** in Supabase (test emails with `@test.gastonkatz.com` domain)
-- Each test run generates new test users; cleanup happens via Supabase retention policies
+- Tests create **real users** in Supabase when signup is available
+- If Supabase returns `email rate limit exceeded` and fallback env vars are not set, smoke tests are skipped to avoid false failures
 - Tests run in **headless mode** by default; use `--headed` flag in debug mode to see browser
 - Playwright supports Chromium, Firefox, and Safari by default
 
